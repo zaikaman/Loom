@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forumsRequest, ForumsThread, getMe, getThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
+import { cookies } from "next/headers";
 
 interface RoadmapExtendedData {
     type: "roadmap";
@@ -16,8 +17,25 @@ interface IndexExtendedData {
     roadmapIds: string[];
 }
 
-// Each user has an "index thread" that stores their roadmap IDs
-// We find it by storing its ID in a predictable way using the username
+const INDEX_THREAD_COOKIE = "loom_index_thread";
+
+// Get index thread ID from cookie
+async function getIndexThreadIdFromCookie(): Promise<string | null> {
+    const cookieStore = await cookies();
+    return cookieStore.get(INDEX_THREAD_COOKIE)?.value || null;
+}
+
+// Store index thread ID in cookie
+async function setIndexThreadIdCookie(threadId: string): Promise<void> {
+    const cookieStore = await cookies();
+    cookieStore.set(INDEX_THREAD_COOKIE, threadId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: "/",
+    });
+}
 
 // Create an index thread for a user
 async function createIndexThread(userId: string, token: string): Promise<ForumsThread> {
@@ -32,7 +50,7 @@ async function createIndexThread(userId: string, token: string): Promise<ForumsT
         method: "POST",
         path: "/api/v1/thread",
         body: {
-            title: `Loom Index - ${userId}`,
+            title: `Loom Index`,
             body: "System thread for storing user roadmap references",
             userId,
             extendedData: extendedData as unknown as Record<string, unknown>,
@@ -41,6 +59,8 @@ async function createIndexThread(userId: string, token: string): Promise<ForumsT
     });
 
     console.log("[createIndexThread] Created:", thread.id);
+    await setIndexThreadIdCookie(thread.id);
+
     return thread;
 }
 
@@ -69,10 +89,6 @@ async function updateIndexThread(
     console.log("[updateIndexThread] Updated successfully");
 }
 
-// Store: userId -> indexThreadId in server memory (persists across requests within same server instance)
-// For production, this should be a database or user.extendedData (if API allowed it)
-const userIndexMap = new Map<string, string>();
-
 // GET /api/roadmaps - List all roadmaps for the current user
 export async function GET(request: NextRequest) {
     try {
@@ -83,7 +99,7 @@ export async function GET(request: NextRequest) {
         }
 
         const user = await getMe(token);
-        const indexThreadId = userIndexMap.get(user.id);
+        const indexThreadId = await getIndexThreadIdFromCookie();
 
         console.log("[GET /api/roadmaps] User:", user.id, "Index thread:", indexThreadId);
 
@@ -98,7 +114,6 @@ export async function GET(request: NextRequest) {
             indexThread = await getThread(indexThreadId);
         } catch {
             console.log("[GET /api/roadmaps] Index thread not found");
-            userIndexMap.delete(user.id);
             return NextResponse.json({ roadmaps: [] });
         }
 
@@ -106,6 +121,10 @@ export async function GET(request: NextRequest) {
         const roadmapIds = indexData?.roadmapIds || [];
 
         console.log("[GET /api/roadmaps] Roadmap IDs:", roadmapIds);
+
+        if (roadmapIds.length === 0) {
+            return NextResponse.json({ roadmaps: [] });
+        }
 
         // Fetch all roadmaps by ID
         const roadmaps = await Promise.all(
@@ -183,14 +202,13 @@ export async function POST(request: NextRequest) {
         console.log("[POST /api/roadmaps] Roadmap thread created:", thread.id);
 
         // Get or create the index thread
-        let indexThreadId = userIndexMap.get(user.id);
+        let indexThreadId = await getIndexThreadIdFromCookie();
         let currentIds: string[] = [];
 
         if (!indexThreadId) {
             // Create new index thread
             const indexThread = await createIndexThread(user.id, token);
             indexThreadId = indexThread.id;
-            userIndexMap.set(user.id, indexThreadId);
         } else {
             // Fetch current IDs from existing index thread
             try {
@@ -201,7 +219,6 @@ export async function POST(request: NextRequest) {
                 // Index thread was deleted, create new one
                 const indexThread = await createIndexThread(user.id, token);
                 indexThreadId = indexThread.id;
-                userIndexMap.set(user.id, indexThreadId);
             }
         }
 

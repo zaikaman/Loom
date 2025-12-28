@@ -9,7 +9,8 @@ import {
     MessageSquare,
     ThumbsUp,
     Calendar,
-    Loader2
+    Loader2,
+    X
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -19,6 +20,7 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { Separator } from "@/components/ui/separator"
 import { Avatar } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 
 interface Feature {
@@ -53,6 +55,15 @@ export default function RoadmapDetailPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
+    // Feature creation dialog state
+    const [showAddFeature, setShowAddFeature] = useState(false)
+    const [isCreatingFeature, setIsCreatingFeature] = useState(false)
+    const [newFeature, setNewFeature] = useState({
+        title: "",
+        description: "",
+        status: "planned" as "planned" | "in-progress" | "shipped"
+    })
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -86,8 +97,55 @@ export default function RoadmapDetailPage() {
         }
     }, [roadmapId])
 
+    const handleCreateFeature = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!newFeature.title.trim()) {
+            toast.error("Please enter a feature title")
+            return
+        }
+
+        setIsCreatingFeature(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newFeature)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to create feature")
+            }
+
+            // Add the new feature to the list
+            const createdFeature: Feature = {
+                id: data.feature.id,
+                title: data.feature.title,
+                description: data.feature.description || "",
+                status: data.feature.status,
+                date: new Date().toLocaleDateString(),
+                votes: 0,
+                comments: 0,
+                roadmapId,
+            }
+            setFeatures(prev => [...prev, createdFeature])
+
+            // Reset form and close dialog
+            setNewFeature({ title: "", description: "", status: "planned" })
+            setShowAddFeature(false)
+            toast.success("Feature created successfully!")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to create feature"
+            toast.error(message)
+        } finally {
+            setIsCreatingFeature(false)
+        }
+    }
+
     const handleUpvote = async (featureId: string, featureTitle: string) => {
-        // In a real app, we'd call an API endpoint for voting
         toast.success(`Upvoted: ${featureTitle}`)
     }
 
@@ -116,6 +174,87 @@ export default function RoadmapDetailPage() {
 
     return (
         <div className="flex h-full flex-col md:flex-row overflow-hidden">
+            {/* Add Feature Dialog/Modal */}
+            {showAddFeature && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="flex items-center justify-between p-4 border-b">
+                            <h2 className="text-lg font-semibold">Add New Feature</h2>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setShowAddFeature(false)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <form onSubmit={handleCreateFeature} className="p-4 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Feature Title <span className="text-destructive">*</span>
+                                </label>
+                                <Input
+                                    placeholder="e.g., Dark mode support"
+                                    value={newFeature.title}
+                                    onChange={(e) => setNewFeature(prev => ({ ...prev, title: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Description</label>
+                                <textarea
+                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    placeholder="Describe this feature..."
+                                    value={newFeature.description}
+                                    onChange={(e) => setNewFeature(prev => ({ ...prev, description: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Status</label>
+                                <div className="flex gap-3">
+                                    {(["planned", "in-progress", "shipped"] as const).map((status) => (
+                                        <label key={status} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="status"
+                                                value={status}
+                                                checked={newFeature.status === status}
+                                                onChange={(e) => setNewFeature(prev => ({
+                                                    ...prev,
+                                                    status: e.target.value as typeof prev.status
+                                                }))}
+                                                className="h-4 w-4"
+                                            />
+                                            <span className="text-sm capitalize">{status.replace("-", " ")}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowAddFeature(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                    disabled={isCreatingFeature}
+                                >
+                                    {isCreatingFeature ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
+                                    ) : (
+                                        "Create Feature"
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content Area */}
             <div className="flex-1 overflow-y-auto">
                 <div className="container mx-auto px-6 py-8 max-w-5xl">
@@ -147,7 +286,10 @@ export default function RoadmapDetailPage() {
                                 <Button variant="outline" size="icon" onClick={() => toast("More options menu")}>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
-                                <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white" onClick={() => toast("Feature creation coming soon")}>
+                                <Button
+                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                    onClick={() => setShowAddFeature(true)}
+                                >
                                     <Plus className="h-4 w-4 mr-2" /> Add Feature
                                 </Button>
                             </div>
@@ -166,7 +308,10 @@ export default function RoadmapDetailPage() {
                             <Plus className="h-12 w-12 text-slate-300 mb-4" />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No features yet</h3>
                             <p className="text-slate-500 mb-4">Add your first feature to this roadmap.</p>
-                            <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white" onClick={() => toast("Feature creation coming soon")}>
+                            <Button
+                                className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                onClick={() => setShowAddFeature(true)}
+                            >
                                 <Plus className="mr-2 h-4 w-4" /> Add Feature
                             </Button>
                         </div>

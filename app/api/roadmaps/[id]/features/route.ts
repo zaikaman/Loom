@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPost, forumsRequest, ForumsPost, getThread } from "@/lib/forums";
+import { forumsRequest, ForumsPost, ForumsThread, getMe, getThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
-import { getMe } from "@/lib/forums";
 
-interface FeatureExtendedData {
-    type: "feature";
+interface Feature {
+    id: string;
     title: string;
+    description: string;
     status: "planned" | "in-progress" | "shipped";
-    votes?: number;
+    votes: number;
+    createdAt: string;
 }
 
-interface ThreadExtendedData {
-    featureIds?: string[];
+interface RoadmapExtendedData {
+    type?: "roadmap";
+    status?: "planned" | "in-progress" | "shipped";
+    visibility?: "public" | "private";
+    description?: string;
+    followers?: string[];
+    ownerId?: string;
+    features?: Feature[];
 }
 
 // GET /api/roadmaps/[id]/features - List features for a roadmap
@@ -22,39 +29,30 @@ export async function GET(
     try {
         const { id: roadmapId } = await params;
 
-        // Get the thread to see stored feature IDs
+        console.log("[GET /features] Fetching features for roadmap:", roadmapId);
+
+        // Get the thread to read features from extendedData
         const thread = await getThread(roadmapId);
-        const threadExtended = thread.extendedData as ThreadExtendedData | undefined;
-        const featureIds = threadExtended?.featureIds || [];
+        const threadExtended = thread.extendedData as RoadmapExtendedData | undefined;
+        const features = threadExtended?.features || [];
 
-        // Fetch all features (posts) for this roadmap
-        const features = await Promise.all(
-            featureIds.map(async (postId) => {
-                try {
-                    // Foru.ms doesn't have a direct GET /post/:id in the docs,
-                    // so we store feature data in extendedData when creating
-                    // For now, return placeholder until we can properly fetch
-                    return {
-                        id: postId,
-                        title: "Feature",
-                        description: "",
-                        status: "planned" as const,
-                        date: new Date().toLocaleDateString(),
-                        votes: 0,
-                        comments: 0,
-                        roadmapId,
-                    };
-                } catch {
-                    return null;
-                }
-            })
-        );
+        console.log("[GET /features] Found features:", features.length);
 
-        // If no features stored, return empty array
-        const validFeatures = features.filter((f) => f !== null);
+        // Format for frontend
+        const formattedFeatures = features.map(f => ({
+            id: f.id,
+            title: f.title,
+            description: f.description,
+            status: f.status,
+            date: new Date(f.createdAt).toLocaleDateString(),
+            votes: f.votes || 0,
+            comments: 0, // Not implemented
+            roadmapId,
+        }));
 
-        return NextResponse.json({ features: validFeatures });
+        return NextResponse.json({ features: formattedFeatures });
     } catch (error) {
+        console.error("[GET /features] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to fetch features";
         return NextResponse.json({ error: message }, { status: 500 });
     }
@@ -80,38 +78,62 @@ export async function POST(
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
 
-        const extendedData: FeatureExtendedData = {
+        console.log("[POST /features] Creating feature for roadmap:", roadmapId);
+        console.log("[POST /features] Title:", title, "Status:", status);
+
+        // Create the feature as a post in the roadmap thread
+        const postExtendedData = {
             type: "feature",
             title,
             status,
             votes: 0,
         };
 
-        // Create the feature as a post in the roadmap thread
-        const post = await createPost({
-            body: `## ${title}\n\n${description || ""}`,
-            threadId: roadmapId,
-            userId: user.id,
-            extendedData: extendedData as unknown as Record<string, unknown>,
+        const post = await forumsRequest<ForumsPost>({
+            method: "POST",
+            path: "/api/v1/post",
+            body: {
+                body: `## ${title}\n\n${description || ""}`,
+                threadId: roadmapId,
+                userId: user.id,
+                extendedData: postExtendedData,
+            },
+            token,
         });
 
-        // Update the thread's extendedData to track this feature
-        const thread = await getThread(roadmapId);
-        const threadExtended = (thread.extendedData as ThreadExtendedData) || {};
-        const featureIds = threadExtended.featureIds || [];
-        featureIds.push(post.id);
+        console.log("[POST /features] Post created:", post.id);
 
-        await forumsRequest({
+        // Create feature object to store in thread
+        const newFeature: Feature = {
+            id: post.id,
+            title,
+            description: description || "",
+            status,
+            votes: 0,
+            createdAt: post.createdAt || new Date().toISOString(),
+        };
+
+        // Update the roadmap thread's extendedData to include this feature
+        const thread = await getThread(roadmapId);
+        const threadExtended = (thread.extendedData as RoadmapExtendedData) || {};
+        const features = threadExtended.features || [];
+        features.push(newFeature);
+
+        console.log("[POST /features] Updating thread extendedData with", features.length, "features");
+
+        await forumsRequest<ForumsThread>({
             method: "PUT",
             path: `/api/v1/thread/${roadmapId}`,
             body: {
                 extendedData: {
                     ...threadExtended,
-                    featureIds,
+                    features,
                 },
             },
-            token, // Use user's JWT token for permission
+            token, // User can update their own thread
         });
+
+        console.log("[POST /features] Thread updated successfully");
 
         return NextResponse.json({
             feature: {
@@ -125,6 +147,7 @@ export async function POST(
             },
         }, { status: 201 });
     } catch (error) {
+        console.error("[POST /features] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to create feature";
         return NextResponse.json({ error: message }, { status: 500 });
     }
