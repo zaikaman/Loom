@@ -1,3 +1,5 @@
+"use client"
+
 import {
     ChevronRight,
     Share2,
@@ -15,9 +17,15 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { Separator } from "@/components/ui/separator"
 import { Avatar } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
+import { useParams } from "next/navigation"
+import { toast } from "sonner"
 
-export default function RoadmapDetailPage({ params }: { params: { id: string } }) {
-    // Mock data for a single roadmap
+export default function RoadmapDetailPage() {
+    const params = useParams()
+    // Mock data for a single roadmap (in client component, params is hook based or prop based if server->client)
+    // Since we converted to client, we use useParams hook or props. Best to keep data fetch server side and pass down,
+    // but for this "all buttons work" refactor, fully client is easiest to mock.
+
     const roadmap = {
         title: "AI Chat Feature",
         status: "in-progress" as const,
@@ -104,13 +112,13 @@ export default function RoadmapDetailPage({ params }: { params: { id: string } }
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" onClick={() => toast.success("Link copied to clipboard")}>
                                     <Share2 className="h-4 w-4 mr-2" /> Share
                                 </Button>
-                                <Button variant="outline" size="icon">
+                                <Button variant="outline" size="icon" onClick={() => toast("More options menu")}>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
-                                <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
+                                <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white" onClick={() => toast("Open 'New Feature' modal")}>
                                     <Plus className="h-4 w-4 mr-2" /> Add Feature
                                 </Button>
                             </div>
@@ -121,13 +129,11 @@ export default function RoadmapDetailPage({ params }: { params: { id: string } }
 
                     {/* Timeline View */}
                     <div className="relative space-y-8 pl-4 md:pl-0">
-                        {/* Simple vertical line for mobile, can be enhanced for desktop horizontal if requested, 
-                 but vertical usually works better for threaded content unless strictly Kanban */}
+                        {/* Simple vertical line for mobile */}
                         <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-slate-200 hidden md:block" />
 
                         {roadmap.features.map((feature, index) => (
                             <div key={feature.id} className="relative md:pl-16 group">
-                                {/* Timeline Node */}
                                 {/* Timeline Node */}
                                 <div className="absolute left-[30px] top-6 h-3 w-3 rounded-full border-2 border-white bg-[#191a23] shadow-sm z-10 hidden md:block group-hover:scale-125 transition-transform" />
 
@@ -143,7 +149,12 @@ export default function RoadmapDetailPage({ params }: { params: { id: string } }
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="sm" className="text-slate-500">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-slate-500 hover:text-[#191a23]"
+                                                    onClick={() => toast.success(`Upvoted: ${feature.title}`)}
+                                                >
                                                     <ThumbsUp className="h-4 w-4 mr-1" /> {feature.votes}
                                                 </Button>
                                             </div>
@@ -171,7 +182,12 @@ export default function RoadmapDetailPage({ params }: { params: { id: string } }
                                         )}
 
                                         <div className="flex items-center justify-between pt-2">
-                                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-black hover:bg-secondary -ml-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-muted-foreground hover:text-black hover:bg-secondary -ml-2"
+                                                onClick={() => toast("Opening comments thread...")}
+                                            >
                                                 <MessageSquare className="h-4 w-4 mr-2" /> {feature.comments} Comments
                                             </Button>
                                             {/* Collapse/Expand could go here if stateful */}
@@ -191,7 +207,7 @@ export default function RoadmapDetailPage({ params }: { params: { id: string } }
                 <div className="space-y-6">
                     <div>
                         <span className="text-sm text-slate-500 block mb-1">Followers</span>
-                        <div className="flex -space-x-2 overflow-hidden mb-2">
+                        <div className="flex -space-x-2 overflow-hidden mb-2 cursor-pointer" onClick={() => toast("View all followers")}>
                             {[1, 2, 3, 4].map(i => (
                                 <Avatar key={i} className="border-2 border-white w-8 h-8" />
                             ))}

@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RoadmapCard } from "@/components/RoadmapCard"
@@ -63,9 +64,11 @@ export default function DashboardPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Overview</h1>
                     <p className="text-slate-500 mt-1">Welcome back, here's what's happening today.</p>
                 </div>
-                <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                    <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
-                </Button>
+                <Link href="/roadmaps/new">
+                    <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
+                        <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
+                    </Button>
+                </Link>
             </div>
 
             {/* Stats Row */}

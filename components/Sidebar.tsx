@@ -8,10 +8,10 @@ import {
     PlusCircle,
     User,
     Settings,
-    LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
+import { LogoutButton } from "@/components/LogoutButton"
 
 const navItems = [
     { name: "Overview", href: "/dashboard", icon: Home },
@@ -74,7 +74,7 @@ export function Sidebar({ className }: { className?: string }) {
                             <span className="text-xs text-muted-foreground">john@example.com</span>
                         </div>
                     </div>
-                    <LogOut className="h-4 w-4 text-muted-foreground hover:text-destructive transition-colors" />
+                    <LogoutButton />
                 </div>
             </div>
         </div>

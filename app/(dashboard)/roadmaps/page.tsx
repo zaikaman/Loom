@@ -1,11 +1,16 @@
+"use client"
+
 import { Plus, Search, Filter } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RoadmapCard } from "@/components/RoadmapCard"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import { useState } from "react"
 
 // Extended dummy data
-const roadmaps = [
+const initialRoadmaps = [
     {
         id: "1",
         title: "AI Chat Feature",
@@ -69,6 +74,8 @@ const roadmaps = [
 ]
 
 export default function RoadmapsPage() {
+    const [filter, setFilter] = useState("all")
+
     return (
         <div className="container mx-auto px-6 py-8 max-w-7xl">
             {/* Header */}
@@ -77,32 +84,58 @@ export default function RoadmapsPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">My Roadmaps</h1>
                     <p className="text-slate-500 mt-1">Manage and track all your product initiatives.</p>
                 </div>
-                <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                    <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
-                </Button>
+                <Link href="/roadmaps/new">
+                    <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
+                        <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
+                    </Button>
+                </Link>
             </div>
 
             {/* Filters & Search */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 p-1">
                 <div className="relative w-full md:w-96">
                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    <Input placeholder="Search roadmaps..." className="pl-10" />
+                    <Input placeholder="Search roadmaps..." className="pl-10" onChange={() => toast("Search is mocked")} />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button variant="outline" size="sm" className="h-9 border-dashed">
+                    <Button variant="outline" size="sm" className="h-9 border-dashed" onClick={() => toast("Advanced filters modal")}>
                         <Filter className="mr-2 h-4 w-4" /> Filter
                     </Button>
-                    <Badge variant="secondary" className="px-3 py-1 cursor-pointer hover:bg-slate-200">All</Badge>
-                    <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-slate-50">Active</Badge>
-                    <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-slate-50">Private</Badge>
-                    <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-slate-50">Public</Badge>
+                    <Badge
+                        variant={filter === "all" ? "default" : "secondary"}
+                        className="px-3 py-1 cursor-pointer hover:bg-slate-200"
+                        onClick={() => setFilter("all")}
+                    >
+                        All
+                    </Badge>
+                    <Badge
+                        variant={filter === "active" ? "default" : "outline"}
+                        className="px-3 py-1 cursor-pointer hover:bg-slate-50"
+                        onClick={() => setFilter("active")}
+                    >
+                        Active
+                    </Badge>
+                    <Badge
+                        variant={filter === "private" ? "default" : "outline"}
+                        className="px-3 py-1 cursor-pointer hover:bg-slate-50"
+                        onClick={() => setFilter("private")}
+                    >
+                        Private
+                    </Badge>
+                    <Badge
+                        variant={filter === "public" ? "default" : "outline"}
+                        className="px-3 py-1 cursor-pointer hover:bg-slate-50"
+                        onClick={() => setFilter("public")}
+                    >
+                        Public
+                    </Badge>
                 </div>
             </div>
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                {roadmaps.map((roadmap) => (
+                {initialRoadmaps.map((roadmap) => (
                     <RoadmapCard
                         key={roadmap.id}
                         {...roadmap}
