@@ -10,7 +10,8 @@ import {
     ThumbsUp,
     Calendar,
     Loader2,
-    X
+    X,
+    Globe
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -30,6 +31,7 @@ interface Feature {
     status: "planned" | "in-progress" | "shipped"
     date: string
     votes: number
+    hasUpvoted?: boolean
     comments: number
     roadmapId: string
     updates?: { id: string; author: string; date: string; text: string }[]
@@ -58,6 +60,7 @@ export default function RoadmapDetailPage() {
     // Feature creation dialog state
     const [showAddFeature, setShowAddFeature] = useState(false)
     const [isCreatingFeature, setIsCreatingFeature] = useState(false)
+    const [isPublishing, setIsPublishing] = useState(false)
     const [newFeature, setNewFeature] = useState({
         title: "",
         description: "",
@@ -145,8 +148,84 @@ export default function RoadmapDetailPage() {
         }
     }
 
-    const handleUpvote = async (featureId: string, featureTitle: string) => {
-        toast.success(`Upvoted: ${featureTitle}`)
+    const handleUpvote = async (featureId: string) => {
+        try {
+            // Optimistic UI update
+            setFeatures(prev => prev.map(f => {
+                if (f.id === featureId) {
+                    const newHasUpvoted = !f.hasUpvoted
+                    return {
+                        ...f,
+                        votes: newHasUpvoted ? f.votes + 1 : f.votes - 1,
+                        hasUpvoted: newHasUpvoted
+                    }
+                }
+                return f
+            }))
+
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ featureId })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                // Revert optimistic update
+                setFeatures(prev => prev.map(f => {
+                    if (f.id === featureId) {
+                        const revertHasUpvoted = !f.hasUpvoted
+                        return {
+                            ...f,
+                            votes: revertHasUpvoted ? f.votes + 1 : f.votes - 1,
+                            hasUpvoted: revertHasUpvoted
+                        }
+                    }
+                    return f
+                }))
+                throw new Error(data.error || "Failed to upvote")
+            }
+
+            // Update with server response
+            setFeatures(prev => prev.map(f => {
+                if (f.id === featureId) {
+                    return {
+                        ...f,
+                        votes: data.feature.votes,
+                        hasUpvoted: data.feature.hasUpvoted
+                    }
+                }
+                return f
+            }))
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to upvote"
+            toast.error(message)
+        }
+    }
+
+    const handlePublishToFeed = async () => {
+        try {
+            setIsPublishing(true)
+            const res = await fetch("/api/feed", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ roadmapId })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to publish")
+            }
+
+            toast.success("Published to community feed! 🎉")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to publish"
+            toast.error(message)
+        } finally {
+            setIsPublishing(false)
+        }
     }
 
     if (isLoading) {
@@ -283,6 +362,19 @@ export default function RoadmapDetailPage() {
                                 }}>
                                     <Share2 className="h-4 w-4 mr-2" /> Share
                                 </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handlePublishToFeed}
+                                    disabled={isPublishing}
+                                >
+                                    {isPublishing ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    ) : (
+                                        <Globe className="h-4 w-4 mr-2" />
+                                    )}
+                                    Publish
+                                </Button>
                                 <Button variant="outline" size="icon" onClick={() => toast("More options menu")}>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
@@ -340,10 +432,10 @@ export default function RoadmapDetailPage() {
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        className="text-slate-500 hover:text-[#191a23]"
-                                                        onClick={() => handleUpvote(feature.id, feature.title)}
+                                                        className={`${feature.hasUpvoted ? 'text-[#191a23] bg-slate-100' : 'text-slate-500'} hover:text-[#191a23]`}
+                                                        onClick={() => handleUpvote(feature.id)}
                                                     >
-                                                        <ThumbsUp className="h-4 w-4 mr-1" /> {feature.votes}
+                                                        <ThumbsUp className={`h-4 w-4 mr-1 ${feature.hasUpvoted ? 'fill-current' : ''}`} /> {feature.votes}
                                                     </Button>
                                                 </div>
                                             </div>

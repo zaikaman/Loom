@@ -8,6 +8,7 @@ interface Feature {
     description: string;
     status: "planned" | "in-progress" | "shipped";
     votes: number;
+    upvotedBy: string[]; // Track who upvoted
     createdAt: string;
 }
 
@@ -29,6 +30,18 @@ export async function GET(
     try {
         const { id: roadmapId } = await params;
 
+        // Get current user (optional - for checking if they upvoted)
+        let currentUserId: string | null = null;
+        try {
+            const token = await getSession();
+            if (token) {
+                const user = await getMe(token);
+                currentUserId = user.id;
+            }
+        } catch {
+            // Not logged in, that's ok
+        }
+
         console.log("[GET /features] Fetching features for roadmap:", roadmapId);
 
         // Get the thread to read features from extendedData
@@ -46,6 +59,7 @@ export async function GET(
             status: f.status,
             date: new Date(f.createdAt).toLocaleDateString(),
             votes: f.votes || 0,
+            hasUpvoted: currentUserId ? (f.upvotedBy || []).includes(currentUserId) : false,
             comments: 0, // Not implemented
             roadmapId,
         }));
@@ -110,6 +124,7 @@ export async function POST(
             description: description || "",
             status,
             votes: 0,
+            upvotedBy: [],
             createdAt: post.createdAt || new Date().toISOString(),
         };
 
@@ -130,7 +145,7 @@ export async function POST(
                     features,
                 },
             },
-            token, // User can update their own thread
+            token,
         });
 
         console.log("[POST /features] Thread updated successfully");
@@ -142,6 +157,7 @@ export async function POST(
                 description,
                 status,
                 votes: 0,
+                hasUpvoted: false,
                 roadmapId,
                 createdAt: post.createdAt,
             },
@@ -149,6 +165,99 @@ export async function POST(
     } catch (error) {
         console.error("[POST /features] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to create feature";
+        return NextResponse.json({ error: message }, { status: 500 });
+    }
+}
+
+// PUT /api/roadmaps/[id]/features - Upvote a feature
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const token = await getSession();
+        if (!token) {
+            return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+        }
+
+        const user = await getMe(token);
+        const { id: roadmapId } = await params;
+        const body = await request.json();
+        const { featureId, action } = body; // action: 'upvote' or 'remove'
+
+        if (!featureId) {
+            return NextResponse.json({ error: "Feature ID is required" }, { status: 400 });
+        }
+
+        console.log("[PUT /features] Upvote action:", action, "for feature:", featureId);
+
+        // Get the thread
+        const thread = await getThread(roadmapId);
+        const threadExtended = (thread.extendedData as RoadmapExtendedData) || {};
+        const features = threadExtended.features || [];
+
+        // Find the feature
+        const featureIndex = features.findIndex(f => f.id === featureId);
+        if (featureIndex === -1) {
+            return NextResponse.json({ error: "Feature not found" }, { status: 404 });
+        }
+
+        const feature = features[featureIndex];
+        const upvotedBy = feature.upvotedBy || [];
+        const hasUpvoted = upvotedBy.includes(user.id);
+
+        if (action === 'upvote') {
+            if (hasUpvoted) {
+                return NextResponse.json({ error: "Already upvoted" }, { status: 400 });
+            }
+            upvotedBy.push(user.id);
+            feature.votes = upvotedBy.length;
+        } else if (action === 'remove') {
+            if (!hasUpvoted) {
+                return NextResponse.json({ error: "Not upvoted yet" }, { status: 400 });
+            }
+            const idx = upvotedBy.indexOf(user.id);
+            upvotedBy.splice(idx, 1);
+            feature.votes = upvotedBy.length;
+        } else {
+            // Toggle behavior
+            if (hasUpvoted) {
+                const idx = upvotedBy.indexOf(user.id);
+                upvotedBy.splice(idx, 1);
+            } else {
+                upvotedBy.push(user.id);
+            }
+            feature.votes = upvotedBy.length;
+        }
+
+        feature.upvotedBy = upvotedBy;
+        features[featureIndex] = feature;
+
+        // Update the thread
+        await forumsRequest<ForumsThread>({
+            method: "PUT",
+            path: `/api/v1/thread/${roadmapId}`,
+            body: {
+                extendedData: {
+                    ...threadExtended,
+                    features,
+                },
+            },
+            token,
+        });
+
+        console.log("[PUT /features] Upvote updated. New vote count:", feature.votes);
+
+        return NextResponse.json({
+            feature: {
+                id: feature.id,
+                votes: feature.votes,
+                hasUpvoted: upvotedBy.includes(user.id),
+            },
+        });
+    } catch (error) {
+        console.error("[PUT /features] Error:", error);
+        const message = error instanceof Error ? error.message : "Failed to update upvote";
         return NextResponse.json({ error: message }, { status: 500 });
     }
 }

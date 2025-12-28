@@ -9,6 +9,7 @@ import {
     PlusCircle,
     User,
     Settings,
+    Compass,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
@@ -16,6 +17,7 @@ import { LogoutButton } from "@/components/LogoutButton"
 
 const navItems = [
     { name: "Overview", href: "/dashboard", icon: Home },
+    { name: "Discover", href: "/feed", icon: Compass },
     { name: "My Roadmaps", href: "/roadmaps", icon: List },
     { name: "New Roadmap", href: "/roadmaps/new", icon: PlusCircle },
     { name: "Profile", href: "/profile", icon: User },
