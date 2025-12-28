@@ -1,15 +1,65 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Bell, Shield, Users, Globe } from "lucide-react"
+import { Bell, Users, Globe, Loader2 } from "lucide-react"
 import { Avatar } from "@/components/ui/avatar"
 import { toast } from "sonner"
 
+interface User {
+    id: string
+    username: string
+    email: string
+    displayName?: string
+}
+
 export default function SettingsPage() {
+    const [user, setUser] = useState<User | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [workspaceName, setWorkspaceName] = useState("")
+    const [workspaceSlug, setWorkspaceSlug] = useState("")
+
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const res = await fetch("/api/auth/me")
+                if (res.ok) {
+                    const data = await res.json()
+                    setUser(data.user)
+                    // Use username as default workspace name/slug
+                    setWorkspaceName(data.user.displayName || data.user.username || "My Workspace")
+                    setWorkspaceSlug(data.user.username || "workspace")
+                }
+            } catch {
+                toast.error("Failed to load settings")
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchUser()
+    }, [])
+
+    const handleSaveWorkspace = async () => {
+        try {
+            // In a real implementation, this would save to user's extendedData
+            toast.success("Workspace settings saved")
+        } catch {
+            toast.error("Failed to save settings")
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        )
+    }
+
     return (
         <div className="container mx-auto px-6 py-8 max-w-4xl">
             <div className="mb-8">
@@ -29,18 +79,29 @@ export default function SettingsPage() {
                     <CardContent className="space-y-4">
                         <div className="grid gap-2">
                             <label className="text-sm font-medium">Workspace Name</label>
-                            <Input defaultValue="Loom Inc." />
+                            <Input
+                                value={workspaceName}
+                                onChange={(e) => setWorkspaceName(e.target.value)}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <label className="text-sm font-medium">Workspace URL</label>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground bg-secondary px-3 py-2 rounded-md border border-input">loom.so/</span>
-                                <Input defaultValue="loom-inc" />
+                                <Input
+                                    value={workspaceSlug}
+                                    onChange={(e) => setWorkspaceSlug(e.target.value)}
+                                />
                             </div>
                         </div>
                     </CardContent>
                     <CardFooter className="bg-secondary/20 border-t border-border px-6 py-4">
-                        <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white" onClick={() => toast.success("Workspace settings saved")}>Update Workspace</Button>
+                        <Button
+                            className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                            onClick={handleSaveWorkspace}
+                        >
+                            Update Workspace
+                        </Button>
                     </CardFooter>
                 </Card>
 
@@ -54,39 +115,30 @@ export default function SettingsPage() {
                                 </CardTitle>
                                 <CardDescription>Manage who has access to this workspace.</CardDescription>
                             </div>
-                            <Button variant="outline" size="sm" onClick={() => toast("Invite link copied to clipboard")}>Invite Member</Button>
+                            <Button variant="outline" size="sm" onClick={() => toast("Team invites coming soon")}>Invite Member</Button>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {[
-                                { name: "John Doe", email: "john@example.com", role: "Owner" },
-                                { name: "Sarah Chen", email: "sarah@example.com", role: "Admin" },
-                                { name: "Mike Ross", email: "mike@example.com", role: "Member" },
-                            ].map((member, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar fallback={member.name[0]} />
-                                        <div>
-                                            <p className="text-sm font-medium leading-none">{member.name}</p>
-                                            <p className="text-sm text-muted-foreground">{member.email}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="capitalize">{member.role}</Badge>
-                                        {member.role !== "Owner" && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                onClick={() => toast.error("Cannot remove members in demo mode")}
-                                            >
-                                                Remove
-                                            </Button>
-                                        )}
+                            {/* Current User (Owner) */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Avatar fallback={user?.displayName?.[0] || user?.username?.[0] || "U"} />
+                                    <div>
+                                        <p className="text-sm font-medium leading-none">
+                                            {user?.displayName || user?.username || "You"}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">{user?.email}</p>
                                     </div>
                                 </div>
-                            ))}
+                                <Badge variant="outline" className="capitalize">Owner</Badge>
+                            </div>
+
+                            {/* Placeholder for team feature */}
+                            <div className="text-center py-6 text-muted-foreground">
+                                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">Team collaboration features coming soon.</p>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -105,7 +157,6 @@ export default function SettingsPage() {
                                 <span className="text-sm font-medium">Email Notifications</span>
                                 <span className="text-xs text-muted-foreground">Receive emails about new roadmap updates.</span>
                             </div>
-                            {/* Mock Switch */}
                             <div
                                 className="h-6 w-11 rounded-full bg-[#b9ff66] p-1 cursor-pointer transition-colors hover:opacity-90"
                                 onClick={() => toast.success("Notification preference updated")}
@@ -119,7 +170,6 @@ export default function SettingsPage() {
                                 <span className="text-sm font-medium">Weekly Digest</span>
                                 <span className="text-xs text-muted-foreground">Get a summary of all activity once a week.</span>
                             </div>
-                            {/* Mock Switch Off */}
                             <div
                                 className="h-6 w-11 rounded-full bg-slate-200 p-1 cursor-pointer transition-colors hover:bg-slate-300"
                                 onClick={() => toast.success("Notification preference updated")}

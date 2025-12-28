@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -21,8 +22,31 @@ const navItems = [
     { name: "Settings", href: "/settings", icon: Settings },
 ]
 
+interface UserInfo {
+    id: string
+    username: string
+    email: string
+    displayName?: string
+}
+
 export function Sidebar({ className }: { className?: string }) {
     const pathname = usePathname()
+    const [user, setUser] = useState<UserInfo | null>(null)
+
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const res = await fetch("/api/auth/me")
+                if (res.ok) {
+                    const data = await res.json()
+                    setUser(data.user)
+                }
+            } catch {
+                // Silently fail - user will be redirected by proxy if not authenticated
+            }
+        }
+        fetchUser()
+    }, [])
 
     return (
         <div
@@ -68,10 +92,14 @@ export function Sidebar({ className }: { className?: string }) {
             <div className="border-t border-border p-4">
                 <div className="group flex items-center w-full justify-between hover:bg-secondary/50 p-2 rounded-md cursor-pointer transition-colors relative">
                     <div className="flex items-center space-x-3">
-                        <Avatar src="https://github.com/shadcn.png" alt="@shadcn" />
+                        <Avatar fallback={user?.displayName?.[0] || user?.username?.[0] || "U"} />
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-foreground">John Doe</span>
-                            <span className="text-xs text-muted-foreground">john@example.com</span>
+                            <span className="text-sm font-medium text-foreground">
+                                {user?.displayName || user?.username || "Loading..."}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                                {user?.email || "..."}
+                            </span>
                         </div>
                     </div>
                     <LogoutButton />
