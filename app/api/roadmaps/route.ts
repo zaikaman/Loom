@@ -5,62 +5,7 @@ import { getUserIndexThreadId, updateUserThreadsMap } from "@/lib/cloudinary";
 
 import { RoadmapExtendedData } from "@/lib/types";
 
-interface IndexExtendedData {
-    type: "loom-index";
-    roadmapIds: string[];
-}
-
-// Create an index thread for a user
-async function createIndexThread(userId: string, token: string): Promise<ForumsThread> {
-    console.log("[createIndexThread] Creating for user:", userId);
-
-    const extendedData: IndexExtendedData = {
-        type: "loom-index",
-        roadmapIds: [],
-    };
-
-    const thread = await forumsRequest<ForumsThread>({
-        method: "POST",
-        path: "/api/v1/thread",
-        body: {
-            title: `Loom Index`,
-            body: "System thread for storing user roadmap references",
-            userId,
-            extendedData: extendedData as unknown as Record<string, unknown>,
-        },
-        token,
-    });
-
-    console.log("[createIndexThread] Created:", thread.id);
-    await updateUserThreadsMap(userId, thread.id);
-
-    return thread;
-}
-
-// Update the index thread with new roadmap IDs
-async function updateIndexThread(
-    threadId: string,
-    roadmapIds: string[],
-    token: string
-): Promise<void> {
-    console.log("[updateIndexThread] Updating:", threadId, "IDs:", roadmapIds);
-
-    const extendedData: IndexExtendedData = {
-        type: "loom-index",
-        roadmapIds,
-    };
-
-    await forumsRequest<ForumsThread>({
-        method: "PUT",
-        path: `/api/v1/thread/${threadId}`,
-        body: {
-            extendedData: extendedData as unknown as Record<string, unknown>,
-        },
-        token,
-    });
-
-    console.log("[updateIndexThread] Updated successfully");
-}
+import { createIndexThread, updateIndexThread, IndexExtendedData } from "@/lib/roadmaps";
 
 // GET /api/roadmaps - List all roadmaps for the current user
 export async function GET(request: NextRequest) {
@@ -92,11 +37,14 @@ export async function GET(request: NextRequest) {
 
         // Verify ownership - only show roadmaps if the index thread belongs to this user
         const indexData = indexThread.extendedData as IndexExtendedData | undefined;
-        const indexOwnerId = (indexThread as unknown as { userId?: string }).userId;
-        if (indexOwnerId && indexOwnerId !== user.id) {
-            console.log("[GET /api/roadmaps] Index thread belongs to different user:", indexOwnerId);
-            return NextResponse.json({ roadmaps: [] });
-        }
+        // TRUST Cloudinary mapping: If the index thread is mapped to this user, we use it.
+        // We do NOT check thread.userId because index threads might be created by System/Admin or Inviter.
+
+        // const indexOwnerId = (indexThread as unknown as { userId?: string }).userId;
+        // if (indexOwnerId && indexOwnerId !== user.id) {
+        //     console.log("[GET /api/roadmaps] Index thread belongs to different user:", indexOwnerId);
+        //     return NextResponse.json({ roadmaps: [] });
+        // }
 
         const roadmapIds = indexData?.roadmapIds || [];
 
@@ -188,7 +136,7 @@ export async function POST(request: NextRequest) {
 
         if (!indexThreadId) {
             // Create new index thread
-            const indexThread = await createIndexThread(user.id, token);
+            const indexThread = await createIndexThread(user.id, token, thread.id);
             indexThreadId = indexThread.id;
         } else {
             // Fetch current IDs from existing index thread
@@ -196,16 +144,16 @@ export async function POST(request: NextRequest) {
                 const indexThread = await getThread(indexThreadId);
                 const indexData = indexThread.extendedData as IndexExtendedData | undefined;
                 currentIds = indexData?.roadmapIds || [];
+
+                // Update index thread with new roadmap ID
+                const newIds = [...currentIds, thread.id];
+                await updateIndexThread(indexThreadId, newIds, token);
             } catch {
                 // Index thread was deleted, create new one
-                const indexThread = await createIndexThread(user.id, token);
+                const indexThread = await createIndexThread(user.id, token, thread.id);
                 indexThreadId = indexThread.id;
             }
         }
-
-        // Update index thread with new roadmap ID
-        const newIds = [...currentIds, thread.id];
-        await updateIndexThread(indexThreadId, newIds, token);
 
         return NextResponse.json({
             roadmap: {

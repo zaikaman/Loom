@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getThread, getMe, getUser, forumsRequest, ForumsThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
 import { RoadmapExtendedData, TeamMember } from "@/lib/types";
+import { getUserIndexThreadId } from "@/lib/cloudinary";
+import { createIndexThread, updateIndexThread, IndexExtendedData } from "@/lib/roadmaps";
 
 // Helper to check if user is owner or team member with specific roles
 function getUserRole(
@@ -197,6 +199,34 @@ export async function POST(
 
         console.log("[POST /team] Added team member:", invitee.username, "with role:", role);
 
+        // Update the invited user's index thread so they can see this roadmap
+        try {
+            const indexThreadId = await getUserIndexThreadId(invitee.id);
+            if (!indexThreadId) {
+                console.log("[POST /team] Creating new index thread for invited user");
+                await createIndexThread(invitee.id, token, roadmapId);
+            } else {
+                console.log("[POST /team] Updating index thread for invited user:", indexThreadId);
+                try {
+                    const indexThread = await getThread(indexThreadId);
+                    const indexData = indexThread.extendedData as IndexExtendedData | undefined;
+                    const referenceIds = indexData?.roadmapIds || [];
+
+                    if (!referenceIds.includes(roadmapId)) {
+                        const newIds = [...referenceIds, roadmapId];
+                        await updateIndexThread(indexThreadId, newIds, token);
+                    }
+                } catch (err) {
+                    console.error("[POST /team] Failed to update existing index thread:", err);
+                    // Try creating a new one if update fails (e.g. thread deleted)
+                    await createIndexThread(invitee.id, token, roadmapId);
+                }
+            }
+        } catch (err) {
+            console.error("[POST /team] Failed to sync index thread:", err);
+            // Don't fail the request if index sync fails, but log it
+        }
+
         return NextResponse.json({
             member: newTeamMember,
             message: "Team member added successfully",
@@ -283,6 +313,24 @@ export async function DELETE(
         });
 
         console.log("[DELETE /team] Removed team member:", memberUserId);
+
+        // Update the removed user's index thread to remove the roadmap ID
+        try {
+            const indexThreadId = await getUserIndexThreadId(memberUserId);
+            if (indexThreadId) {
+                console.log("[DELETE /team] Removing roadmap from index thread:", indexThreadId);
+                const indexThread = await getThread(indexThreadId);
+                const indexData = indexThread.extendedData as IndexExtendedData | undefined;
+                const referenceIds = indexData?.roadmapIds || [];
+
+                const newIds = referenceIds.filter(id => id !== roadmapId);
+                if (newIds.length !== referenceIds.length) {
+                    await updateIndexThread(indexThreadId, newIds, token);
+                }
+            }
+        } catch (err) {
+            console.error("[DELETE /team] Failed to sync index thread:", err);
+        }
 
         return NextResponse.json({
             success: true,

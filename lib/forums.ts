@@ -243,7 +243,7 @@ export async function searchUsers(query: string): Promise<ForumsUser[]> {
     // The Foru.ms API has a search endpoint that can search users
     const result = await forumsRequest<{ users?: ForumsUser[] }>({
         method: "GET",
-        path: `/api/v1/search?q=${encodeURIComponent(query)}&type=user`,
+        path: `/api/v1/search?query=${encodeURIComponent(query)}&type=users`,
     });
     return result.users || [];
 }
