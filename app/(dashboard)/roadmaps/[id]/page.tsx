@@ -36,6 +36,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { TeamManager } from "@/components/TeamManager"
+import confetti from "canvas-confetti"
+
 
 interface Feature {
     id: string
@@ -113,6 +115,16 @@ export default function RoadmapDetailPage() {
         description: "",
         status: "planned" as "planned" | "in-progress" | "shipped"
     })
+
+    // Edit Feature state
+    const [showEditFeatureModal, setShowEditFeatureModal] = useState(false)
+    const [editingFeature, setEditingFeature] = useState<Feature | null>(null)
+    const [editFeatureForm, setEditFeatureForm] = useState({
+        title: "",
+        description: "",
+        status: "planned" as "planned" | "in-progress" | "shipped"
+    })
+    const [isUpdatingFeature, setIsUpdatingFeature] = useState(false)
 
     // More options dropdown state
     const [showMoreOptions, setShowMoreOptions] = useState(false)
@@ -229,6 +241,93 @@ export default function RoadmapDetailPage() {
         } finally {
             setIsCreatingFeature(false)
         }
+    }
+
+    const handleEditFeatureClick = (feature: Feature) => {
+        setEditingFeature(feature)
+        setEditFeatureForm({
+            title: feature.title,
+            description: feature.description,
+            status: feature.status
+        })
+        setShowEditFeatureModal(true)
+    }
+
+    const handleUpdateFeature = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!editingFeature) return
+
+        if (!editFeatureForm.title.trim()) {
+            toast.error("Please enter a feature title")
+            return
+        }
+
+        setIsUpdatingFeature(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    featureId: editingFeature.id,
+                    ...editFeatureForm
+                })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to update feature")
+            }
+
+            // Update local state
+            setFeatures(prev => prev.map(f =>
+                f.id === editingFeature.id
+                    ? { ...f, ...editFeatureForm }
+                    : f
+            ))
+
+            setShowEditFeatureModal(false)
+            toast.success("Feature updated successfully!")
+
+            // Confetti if status changed to shipped
+            if (editingFeature.status !== "shipped" && editFeatureForm.status === "shipped") {
+                triggerConfetti()
+            }
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to update feature"
+            toast.error(message)
+        } finally {
+            setIsUpdatingFeature(false)
+        }
+    }
+
+    const triggerConfetti = () => {
+        const duration = 3 * 1000
+        const animationEnd = Date.now() + duration
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 }
+
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+
+        const interval: any = setInterval(function () {
+            const timeLeft = animationEnd - Date.now()
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval)
+            }
+
+            const particleCount = 50 * (timeLeft / duration)
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            })
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            })
+        }, 250)
     }
 
     const handleUpvote = async (featureId: string) => {
@@ -715,6 +814,126 @@ export default function RoadmapDetailPage() {
                                         <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
                                     ) : (
                                         "Create Feature"
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Feature Modal */}
+            {showEditFeatureModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="flex items-center justify-between p-4 border-b">
+                            <h2 className="text-lg font-semibold">Edit Feature</h2>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setShowEditFeatureModal(false)}
+                            >
+                                <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <form onSubmit={handleUpdateFeature} className="p-4 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Feature Title <span className="text-destructive">*</span>
+                                </label>
+                                <Input
+                                    placeholder="e.g., Dark mode support"
+                                    value={editFeatureForm.title}
+                                    onChange={(e) => setEditFeatureForm(prev => ({ ...prev, title: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-medium">Description</label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={async () => {
+                                            if (!editFeatureForm.title) {
+                                                toast.error("Please enter a title first");
+                                                return;
+                                            }
+
+                                            const promise = fetch("/api/ai/expand", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ title: editFeatureForm.title }),
+                                            }).then(async (res) => {
+                                                if (!res.ok) throw new Error("Failed to generate");
+                                                const data = await res.json();
+                                                setEditFeatureForm(prev => ({
+                                                    ...prev,
+                                                    description: prev.description
+                                                        ? prev.description + "\n\n" + data.spec
+                                                        : data.spec
+                                                }));
+                                                return data;
+                                            });
+
+                                            toast.promise(promise, {
+                                                loading: "Generating spec with AI...",
+                                                success: "Spec generated!",
+                                                error: "Failed to generate spec",
+                                            });
+                                        }}
+                                        className="h-7 text-xs gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                                    >
+                                        <HugeiconsIcon icon={SparklesIcon} className="h-3.5 w-3.5" />
+                                        Magic Expand
+                                    </Button>
+                                </div>
+                                <textarea
+                                    className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono"
+                                    placeholder="Describe this feature..."
+                                    value={editFeatureForm.description}
+                                    onChange={(e) => setEditFeatureForm(prev => ({ ...prev, description: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Status</label>
+                                <div className="flex gap-3">
+                                    {(["planned", "in-progress", "shipped"] as const).map((status) => (
+                                        <label key={status} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="status"
+                                                value={status}
+                                                checked={editFeatureForm.status === status}
+                                                onChange={(e) => setEditFeatureForm(prev => ({
+                                                    ...prev,
+                                                    status: e.target.value as typeof prev.status
+                                                }))}
+                                                className="h-4 w-4"
+                                            />
+                                            <span className="text-sm capitalize">{status.replace("-", " ")}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowEditFeatureModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                    disabled={isUpdatingFeature}
+                                >
+                                    {isUpdatingFeature ? (
+                                        <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                                    ) : (
+                                        "Save Changes"
                                     )}
                                 </Button>
                             </div>
@@ -1244,14 +1463,24 @@ export default function RoadmapDetailPage() {
                                                     </Button>
 
                                                     {(isOwner || userRole === "editor") && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="text-slate-400 hover:text-red-600"
-                                                            onClick={() => setFeatureToDelete(feature.id)}
-                                                        >
-                                                            <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
-                                                        </Button>
+                                                        <>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-slate-400 hover:text-slate-900"
+                                                                onClick={() => handleEditFeatureClick(feature)}
+                                                            >
+                                                                <HugeiconsIcon icon={PencilEdit01Icon} className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-slate-400 hover:text-red-600"
+                                                                onClick={() => setFeatureToDelete(feature.id)}
+                                                            >
+                                                                <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
+                                                            </Button>
+                                                        </>
                                                     )}
                                                 </div>
                                             </div>

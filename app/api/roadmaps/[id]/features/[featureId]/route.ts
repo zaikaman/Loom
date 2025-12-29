@@ -53,7 +53,28 @@ export async function DELETE(
             );
         }
 
-        await deletePost(featureId, token);
+        // Update extendedData to remove the feature
+        // We use the API Key (by not passing token to forumsRequest) to ensure we have permission
+        if (extendedData.features) {
+            const updatedFeatures = extendedData.features.filter(f => f.id !== featureId);
+
+            await forumsRequest<ForumsThread>({
+                method: "PUT",
+                path: `/api/v1/thread/${roadmapId}`,
+                body: {
+                    extendedData: {
+                        ...extendedData,
+                        features: updatedFeatures,
+                    },
+                },
+                // No token, use API Key for admin access
+            });
+        }
+
+        // Delete the post itself
+        // Pass undefined for token to use API Key (Admin) permissions instead of User permissions
+        // This solves the "No permission to delete this post" error when the user isn't the author
+        await deletePost(featureId, undefined);
 
         return NextResponse.json({ success: true });
     } catch (error) {

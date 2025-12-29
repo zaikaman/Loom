@@ -218,7 +218,8 @@ export async function PUT(
         const user = await getMe(token);
         const { id: roadmapId } = await params;
         const body = await request.json();
-        const { featureId, action } = body; // action: 'upvote' or 'remove'
+        const { featureId, action, title, description, status, links } = body;
+
 
         if (!featureId) {
             return NextResponse.json({ error: "Feature ID is required" }, { status: 400 });
@@ -254,8 +255,21 @@ export async function PUT(
             const idx = upvotedBy.indexOf(user.id);
             upvotedBy.splice(idx, 1);
             feature.votes = upvotedBy.length;
+        } else if (title || status || description) {
+            // Update feature details
+            // Check permissions again just to be safe (though owner/editor check should technically be higher up for broad edits)
+            const userRole = getUserRole(user.id, threadExtended, (thread as unknown as { userId?: string }).userId);
+            if (userRole !== "owner" && userRole !== "editor") {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+            }
+
+            if (title) feature.title = title;
+            if (description !== undefined) feature.description = description;
+            if (status) feature.status = status;
+            // We don't have links in the Feature type yet, but if we did:
+            // if (links) feature.links = links;
         } else {
-            // Toggle behavior
+            // Toggle behavior (default fallback for upvotes if no specific action/data)
             if (hasUpvoted) {
                 const idx = upvotedBy.indexOf(user.id);
                 upvotedBy.splice(idx, 1);
@@ -287,6 +301,9 @@ export async function PUT(
                 id: feature.id,
                 votes: feature.votes,
                 hasUpvoted: upvotedBy.includes(user.id),
+                title: feature.title,
+                description: feature.description,
+                status: feature.status
             },
         });
     } catch (error) {
