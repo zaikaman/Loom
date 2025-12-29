@@ -5,8 +5,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { User, Mail, Camera, Loader2 } from "lucide-react"
+import { User, Mail, Camera, Loader2, Github, Linkedin, Globe, Twitter, Instagram, Facebook } from "lucide-react"
 import { toast } from "sonner"
+
+interface SocialLinks {
+    github?: string
+    linkedin?: string
+    twitter?: string
+    instagram?: string
+    facebook?: string
+    website?: string
+}
 
 interface UserProfile {
     id: string
@@ -16,6 +25,7 @@ interface UserProfile {
     bio?: string
     extendedData?: {
         avatarUrl?: string
+        socialLinks?: SocialLinks
     }
 }
 
@@ -32,6 +42,15 @@ export default function ProfilePage() {
         bio: ""
     })
 
+    const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+        github: "",
+        linkedin: "",
+        twitter: "",
+        instagram: "",
+        facebook: "",
+        website: ""
+    })
+
     useEffect(() => {
         async function fetchUser() {
             try {
@@ -43,6 +62,14 @@ export default function ProfilePage() {
                         displayName: data.user.displayName || "",
                         email: data.user.email || "",
                         bio: data.user.bio || ""
+                    })
+                    setSocialLinks({
+                        github: data.user.extendedData?.socialLinks?.github || "",
+                        linkedin: data.user.extendedData?.socialLinks?.linkedin || "",
+                        twitter: data.user.extendedData?.socialLinks?.twitter || "",
+                        instagram: data.user.extendedData?.socialLinks?.instagram || "",
+                        facebook: data.user.extendedData?.socialLinks?.facebook || "",
+                        website: data.user.extendedData?.socialLinks?.website || ""
                     })
                 }
             } catch (err) {
@@ -62,7 +89,11 @@ export default function ProfilePage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     displayName: formData.displayName,
-                    bio: formData.bio
+                    bio: formData.bio,
+                    extendedData: {
+                        ...user?.extendedData,
+                        socialLinks: socialLinks
+                    }
                 })
             })
 
@@ -245,6 +276,120 @@ export default function ProfilePage() {
                             disabled={isSaving}
                         >
                             {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
+                        </Button>
+                    </div>
+                </Card>
+
+                {/* Social Links */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Social Links</CardTitle>
+                        <CardDescription>Add your social media profiles so people can connect with you.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid gap-2">
+                            <label htmlFor="github" className="text-sm font-medium leading-none">
+                                GitHub
+                            </label>
+                            <div className="relative">
+                                <Github className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="github"
+                                    placeholder="https://github.com/username"
+                                    value={socialLinks.github}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, github: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <label htmlFor="linkedin" className="text-sm font-medium leading-none">
+                                LinkedIn
+                            </label>
+                            <div className="relative">
+                                <Linkedin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="linkedin"
+                                    placeholder="https://linkedin.com/in/username"
+                                    value={socialLinks.linkedin}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, linkedin: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <label htmlFor="twitter" className="text-sm font-medium leading-none">
+                                X (Twitter)
+                            </label>
+                            <div className="relative">
+                                <Twitter className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="twitter"
+                                    placeholder="https://x.com/username"
+                                    value={socialLinks.twitter}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, twitter: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <label htmlFor="instagram" className="text-sm font-medium leading-none">
+                                Instagram
+                            </label>
+                            <div className="relative">
+                                <Instagram className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="instagram"
+                                    placeholder="https://instagram.com/username"
+                                    value={socialLinks.instagram}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <label htmlFor="facebook" className="text-sm font-medium leading-none">
+                                Facebook
+                            </label>
+                            <div className="relative">
+                                <Facebook className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="facebook"
+                                    placeholder="https://facebook.com/username"
+                                    value={socialLinks.facebook}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <label htmlFor="website" className="text-sm font-medium leading-none">
+                                Portfolio / Website
+                            </label>
+                            <div className="relative">
+                                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="website"
+                                    placeholder="https://yourwebsite.com"
+                                    value={socialLinks.website}
+                                    onChange={(e) => setSocialLinks(prev => ({ ...prev, website: e.target.value }))}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                    <div className="flex items-center p-6 pt-0">
+                        <Button
+                            className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Links"}
                         </Button>
                     </div>
                 </Card>

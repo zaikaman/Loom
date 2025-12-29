@@ -3,7 +3,7 @@ import { searchUsers, getThread, getUser, ForumsUser, ForumsThread } from "@/lib
 import { getFeedIndexFromCloudinary } from "@/lib/cloudinary"
 import { RoadmapCard } from "@/components/RoadmapCard"
 import { Button } from "@/components/ui/button"
-import { MapIcon, Calendar, User, Mail } from "lucide-react"
+import { MapIcon, Calendar, User, Mail, Github, Linkedin, Globe, Twitter, Instagram, Facebook } from "lucide-react"
 import Link from "next/link"
 
 interface ProfilePageProps {
@@ -147,6 +147,83 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <span>{roadmaps.length} Public Roadmaps</span>
                             </div>
                         </div>
+
+                        {/* Social Links */}
+                        {(() => {
+                            const socialLinks = (user.extendedData as { socialLinks?: { github?: string; linkedin?: string; twitter?: string; instagram?: string; facebook?: string; website?: string } })?.socialLinks
+                            const hasLinks = socialLinks && (socialLinks.github || socialLinks.linkedin || socialLinks.twitter || socialLinks.instagram || socialLinks.facebook || socialLinks.website)
+                            if (!hasLinks) return null
+                            return (
+                                <div className="flex flex-wrap items-center gap-3 mt-4">
+                                    {socialLinks.github && (
+                                        <a
+                                            href={socialLinks.github}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-sm"
+                                        >
+                                            <Github className="h-4 w-4" />
+                                            GitHub
+                                        </a>
+                                    )}
+                                    {socialLinks.linkedin && (
+                                        <a
+                                            href={socialLinks.linkedin}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
+                                        >
+                                            <Linkedin className="h-4 w-4" />
+                                            LinkedIn
+                                        </a>
+                                    )}
+                                    {socialLinks.twitter && (
+                                        <a
+                                            href={socialLinks.twitter}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm"
+                                        >
+                                            <Twitter className="h-4 w-4" />
+                                            X
+                                        </a>
+                                    )}
+                                    {socialLinks.instagram && (
+                                        <a
+                                            href={socialLinks.instagram}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200 transition-colors text-sm"
+                                        >
+                                            <Instagram className="h-4 w-4" />
+                                            Instagram
+                                        </a>
+                                    )}
+                                    {socialLinks.facebook && (
+                                        <a
+                                            href={socialLinks.facebook}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-sm"
+                                        >
+                                            <Facebook className="h-4 w-4" />
+                                            Facebook
+                                        </a>
+                                    )}
+                                    {socialLinks.website && (
+                                        <a
+                                            href={socialLinks.website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors text-sm"
+                                        >
+                                            <Globe className="h-4 w-4" />
+                                            Website
+                                        </a>
+                                    )}
+                                </div>
+                            )
+                        })()}
                     </div>
                 </div>
             </div>
