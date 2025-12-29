@@ -42,6 +42,14 @@ interface Feature {
     updates?: { id: string; author: string; date: string; text: string }[]
 }
 
+interface Comment {
+    id: string
+    body: string
+    userId: string
+    username?: string
+    createdAt: string
+}
+
 interface Roadmap {
     id: string
     title: string
@@ -64,6 +72,13 @@ export default function RoadmapDetailPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [isOwner, setIsOwner] = useState(false)
+
+    // Comment state
+    const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set())
+    const [featureComments, setFeatureComments] = useState<Record<string, Comment[]>>({})
+    const [loadingComments, setLoadingComments] = useState<Set<string>>(new Set())
+    const [newComment, setNewComment] = useState<Record<string, string>>({})
+    const [submittingComment, setSubmittingComment] = useState<Set<string>>(new Set())
 
     // Feature creation dialog state
     const [showAddFeature, setShowAddFeature] = useState(false)
@@ -233,6 +248,87 @@ export default function RoadmapDetailPage() {
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to upvote"
             toast.error(message)
+        }
+    }
+
+    const toggleComments = async (featureId: string) => {
+        const newExpanded = new Set(expandedComments)
+        if (newExpanded.has(featureId)) {
+            newExpanded.delete(featureId)
+        } else {
+            newExpanded.add(featureId)
+            // Fetch comments if we haven't yet
+            if (!featureComments[featureId]) {
+                await fetchComments(featureId)
+            }
+        }
+        setExpandedComments(newExpanded)
+    }
+
+    const fetchComments = async (featureId: string) => {
+        setLoadingComments(prev => new Set(prev).add(featureId))
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features/${featureId}/comments`)
+            if (res.ok) {
+                const data = await res.json()
+                setFeatureComments(prev => ({ ...prev, [featureId]: data.comments || [] }))
+                // Update comment count
+                setFeatures(prev => prev.map(f =>
+                    f.id === featureId ? { ...f, comments: (data.comments || []).length } : f
+                ))
+            }
+        } catch (err) {
+            console.error("Failed to fetch comments:", err)
+        } finally {
+            setLoadingComments(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(featureId)
+                return newSet
+            })
+        }
+    }
+
+    const handleSubmitComment = async (featureId: string) => {
+        const commentBody = newComment[featureId]?.trim()
+        if (!commentBody) return
+
+        setSubmittingComment(prev => new Set(prev).add(featureId))
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features/${featureId}/comments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ body: commentBody })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to add comment")
+            }
+
+            // Add new comment to the list
+            setFeatureComments(prev => ({
+                ...prev,
+                [featureId]: [...(prev[featureId] || []), data.comment]
+            }))
+
+            // Update comment count
+            setFeatures(prev => prev.map(f =>
+                f.id === featureId ? { ...f, comments: f.comments + 1 } : f
+            ))
+
+            // Clear input
+            setNewComment(prev => ({ ...prev, [featureId]: "" }))
+            toast.success("Comment added!")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to add comment"
+            toast.error(message)
+        } finally {
+            setSubmittingComment(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(featureId)
+                return newSet
+            })
         }
     }
 
@@ -803,15 +899,88 @@ export default function RoadmapDetailPage() {
                                                 </div>
                                             )}
 
-                                            <div className="flex items-center justify-between pt-2">
+                                            <div className="pt-2">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     className="text-muted-foreground hover:text-black hover:bg-secondary -ml-2"
-                                                    onClick={() => toast("Opening comments thread...")}
+                                                    onClick={() => toggleComments(feature.id)}
                                                 >
-                                                    <MessageSquare className="h-4 w-4 mr-2" /> {feature.comments} Comments
+                                                    <MessageSquare className="h-4 w-4 mr-2" />
+                                                    {feature.comments} Comments
+                                                    {expandedComments.has(feature.id) ? " ▲" : " ▼"}
                                                 </Button>
+
+                                                {/* Expandable Comment Section */}
+                                                {expandedComments.has(feature.id) && (
+                                                    <div className="mt-4 bg-slate-50 rounded-lg p-4 border border-slate-100 space-y-4">
+                                                        {loadingComments.has(feature.id) ? (
+                                                            <div className="flex items-center justify-center py-4">
+                                                                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {/* Comment List */}
+                                                                {(featureComments[feature.id] || []).length === 0 ? (
+                                                                    <p className="text-sm text-slate-500 text-center py-2">
+                                                                        No comments yet. Be the first to comment!
+                                                                    </p>
+                                                                ) : (
+                                                                    <div className="space-y-3">
+                                                                        {(featureComments[feature.id] || []).map((comment) => (
+                                                                            <div key={comment.id} className="flex gap-3">
+                                                                                <Avatar className="h-8 w-8" fallback={(comment.username || "U")[0]} />
+                                                                                <div className="flex-1">
+                                                                                    <div className="flex items-center gap-2 mb-1">
+                                                                                        <span className="text-sm font-medium text-slate-900">
+                                                                                            {comment.username || "User"}
+                                                                                        </span>
+                                                                                        <span className="text-xs text-slate-400">
+                                                                                            {new Date(comment.createdAt).toLocaleDateString()}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <p className="text-sm text-slate-600">{comment.body}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* New Comment Form */}
+                                                                <div className="flex gap-2 pt-2 border-t border-slate-200">
+                                                                    <Input
+                                                                        placeholder="Add a comment..."
+                                                                        value={newComment[feature.id] || ""}
+                                                                        onChange={(e) => setNewComment(prev => ({
+                                                                            ...prev,
+                                                                            [feature.id]: e.target.value
+                                                                        }))}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === "Enter" && !e.shiftKey) {
+                                                                                e.preventDefault()
+                                                                                handleSubmitComment(feature.id)
+                                                                            }
+                                                                        }}
+                                                                        disabled={submittingComment.has(feature.id)}
+                                                                        className="flex-1"
+                                                                    />
+                                                                    <Button
+                                                                        size="sm"
+                                                                        className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                                                        onClick={() => handleSubmitComment(feature.id)}
+                                                                        disabled={submittingComment.has(feature.id) || !newComment[feature.id]?.trim()}
+                                                                    >
+                                                                        {submittingComment.has(feature.id) ? (
+                                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                                        ) : (
+                                                                            "Post"
+                                                                        )}
+                                                                    </Button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>

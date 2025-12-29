@@ -10,6 +10,7 @@ interface Feature {
     votes: number;
     upvotedBy: string[]; // Track who upvoted
     createdAt: string;
+    comments?: { id: string; body: string; userId: string; username: string; createdAt: string }[];
 }
 
 interface RoadmapExtendedData {
@@ -60,7 +61,7 @@ export async function GET(
             date: new Date(f.createdAt).toLocaleDateString(),
             votes: f.votes || 0,
             hasUpvoted: currentUserId ? (f.upvotedBy || []).includes(currentUserId) : false,
-            comments: 0, // Not implemented
+            comments: (f.comments || []).length,
             roadmapId,
         }));
 

@@ -197,6 +197,22 @@ export async function createPost(data: {
 // The Foru.ms API doesn't have a direct GET /api/v1/post/:id in the docs I read,
 // but we can work around this by storing post IDs and using thread-based queries.
 
+// Get all posts for a thread
+export async function getPosts(threadId: string): Promise<ForumsPost[]> {
+    return forumsRequest<ForumsPost[]>({
+        method: "GET",
+        path: `/api/v1/thread/${threadId}/posts`,
+    });
+}
+
+// Get a single post by ID
+export async function getPost(postId: string): Promise<ForumsPost> {
+    return forumsRequest<ForumsPost>({
+        method: "GET",
+        path: `/api/v1/post/${postId}`,
+    });
+}
+
 // --- User ---
 
 export async function updateUser(
