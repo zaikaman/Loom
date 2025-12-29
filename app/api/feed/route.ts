@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forumsRequest, ForumsThread, getMe, getThread } from "@/lib/forums";
-import { cookies } from "next/headers";
-
-const FEED_INDEX_COOKIE = "loom_feed_index";
+import { getFeedIndexFromCloudinary, setFeedIndexInCloudinary } from "@/lib/cloudinary";
 
 interface FeedIndexExtendedData {
     type: "loom-feed-index";
@@ -27,28 +25,15 @@ interface RoadmapExtendedData {
     }>;
 }
 
-// Get the feed index thread ID from cookie or env
+// Get the feed index thread ID from Cloudinary or env
 async function getFeedIndexId(): Promise<string | null> {
     // First check env var
     if (process.env.FEED_INDEX_ID) {
         return process.env.FEED_INDEX_ID;
     }
 
-    // Then check cookie
-    const cookieStore = await cookies();
-    return cookieStore.get(FEED_INDEX_COOKIE)?.value || null;
-}
-
-// Store the feed index thread ID in cookie
-async function setFeedIndexIdCookie(threadId: string): Promise<void> {
-    const cookieStore = await cookies();
-    cookieStore.set(FEED_INDEX_COOKIE, threadId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: "/",
-    });
+    // Then check Cloudinary
+    return await getFeedIndexFromCloudinary();
 }
 
 // Create the feed index thread (using API key for global access)
@@ -74,7 +59,7 @@ async function createFeedIndexThread(): Promise<ForumsThread> {
     });
 
     console.log("[Feed] Created feed index thread:", thread.id);
-    await setFeedIndexIdCookie(thread.id);
+    await setFeedIndexInCloudinary(thread.id);
 
     return thread;
 }

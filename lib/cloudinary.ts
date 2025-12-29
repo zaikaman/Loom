@@ -1,7 +1,13 @@
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
-// The JSON file path on Cloudinary
+// The JSON file paths on Cloudinary
 const USER_THREADS_PUBLIC_ID = 'loom/user-threads';
+const FEED_INDEX_PUBLIC_ID = 'loom/feed-index';
+
+interface FeedIndexData {
+    feedIndexThreadId: string;
+    updatedAt: string;
+}
 
 interface UserThreadEntry {
     indexThreadId: string;
@@ -144,4 +150,64 @@ export async function removeUserFromThreadsMap(userId: string): Promise<void> {
 
         console.log('[removeUserFromThreadsMap] Removed successfully');
     }
+}
+
+/**
+ * Get the feed index thread ID from Cloudinary
+ * Returns null if not set yet
+ */
+export async function getFeedIndexFromCloudinary(): Promise<string | null> {
+    configureCloudinary();
+
+    try {
+        const url = cloudinary.url(FEED_INDEX_PUBLIC_ID, {
+            resource_type: 'raw',
+            secure: true,
+        });
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.log('[getFeedIndexFromCloudinary] File not found');
+                return null;
+            }
+            throw new Error(`Failed to fetch feed index: ${response.status}`);
+        }
+
+        const data = await response.json() as FeedIndexData;
+        console.log('[getFeedIndexFromCloudinary] Found feed index:', data.feedIndexThreadId);
+        return data.feedIndexThreadId;
+    } catch (error) {
+        console.log('[getFeedIndexFromCloudinary] Error fetching:', error);
+        return null;
+    }
+}
+
+/**
+ * Save the feed index thread ID to Cloudinary
+ */
+export async function setFeedIndexInCloudinary(threadId: string): Promise<void> {
+    configureCloudinary();
+
+    console.log('[setFeedIndexInCloudinary] Saving feed index:', threadId);
+
+    const data: FeedIndexData = {
+        feedIndexThreadId: threadId,
+        updatedAt: new Date().toISOString(),
+    };
+
+    const jsonContent = JSON.stringify(data, null, 2);
+
+    const result: UploadApiResponse = await cloudinary.uploader.upload(
+        `data:application/json;base64,${Buffer.from(jsonContent).toString('base64')}`,
+        {
+            public_id: FEED_INDEX_PUBLIC_ID,
+            resource_type: 'raw',
+            overwrite: true,
+            invalidate: true,
+        }
+    );
+
+    console.log('[setFeedIndexInCloudinary] Saved successfully:', result.secure_url);
 }

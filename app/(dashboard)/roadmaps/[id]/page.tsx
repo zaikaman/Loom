@@ -912,7 +912,7 @@ export default function RoadmapDetailPage() {
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
                                 {/* Primary Action: Add Feature */}
                                 {(isOwner || userRole === "editor") && (
                                     <Button
@@ -951,7 +951,7 @@ export default function RoadmapDetailPage() {
                                         </>
                                     )}
 
-                                    {isOwner && (
+                                    {(isOwner || userRole === "editor") && (
                                         <>
                                             <div className="w-[1px] h-4 bg-slate-200 mx-1" />
                                             <div className="relative" ref={dropdownRef}>
@@ -971,14 +971,16 @@ export default function RoadmapDetailPage() {
                                                             Management
                                                         </div>
 
-                                                        <button
-                                                            onClick={handlePublishToFeed}
-                                                            disabled={isPublishing}
-                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
-                                                        >
-                                                            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4 text-slate-500" />}
-                                                            Publish to Community
-                                                        </button>
+                                                        {isOwner && (
+                                                            <button
+                                                                onClick={handlePublishToFeed}
+                                                                disabled={isPublishing}
+                                                                className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
+                                                            >
+                                                                {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4 text-slate-500" />}
+                                                                Publish to Community
+                                                            </button>
+                                                        )}
 
                                                         <button
                                                             onClick={handleOpenEditModal}
@@ -996,33 +998,39 @@ export default function RoadmapDetailPage() {
                                                             Duplicate
                                                         </button>
 
-                                                        <button
-                                                            onClick={handleToggleVisibility}
-                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
-                                                        >
-                                                            {roadmap.visibility === "public" ? (
-                                                                <>
-                                                                    <EyeOff className="h-4 w-4 text-slate-500" /> Make Private
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Eye className="h-4 w-4 text-slate-500" /> Make Public
-                                                                </>
-                                                            )}
-                                                        </button>
+                                                        {isOwner && (
+                                                            <button
+                                                                onClick={handleToggleVisibility}
+                                                                className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                                            >
+                                                                {roadmap.visibility === "public" ? (
+                                                                    <>
+                                                                        <EyeOff className="h-4 w-4 text-slate-500" /> Make Private
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Eye className="h-4 w-4 text-slate-500" /> Make Public
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        )}
 
-                                                        <div className="my-1 border-t border-slate-100" />
+                                                        {isOwner && (
+                                                            <>
+                                                                <div className="my-1 border-t border-slate-100" />
 
-                                                        <button
-                                                            onClick={() => {
-                                                                setShowMoreOptions(false)
-                                                                setShowDeleteModal(true)
-                                                            }}
-                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                            Delete Roadmap
-                                                        </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setShowMoreOptions(false)
+                                                                        setShowDeleteModal(true)
+                                                                    }}
+                                                                    className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                    Delete Roadmap
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
