@@ -9,7 +9,7 @@ interface ForumsRequestOptions {
 
 /**
  * Makes a request to the Foru.ms API.
- * Uses API Key auth by default, or Bearer token if provided.
+ * Always uses API Key auth, and additionally includes Bearer token if provided.
  */
 export async function forumsRequest<T = unknown>({
     method,
@@ -21,15 +21,16 @@ export async function forumsRequest<T = unknown>({
         "Content-Type": "application/json",
     };
 
-    // Use Bearer token if provided (user session), otherwise API Key
+    // Always include API Key
+    const apiKey = process.env.FORUMS_API_KEY;
+    if (!apiKey) {
+        throw new Error("FORUMS_API_KEY is not set in environment variables");
+    }
+    headers["x-api-key"] = apiKey;
+
+    // Additionally include Bearer token if provided
     if (token) {
         headers["Authorization"] = `Bearer ${token}`;
-    } else {
-        const apiKey = process.env.FORUMS_API_KEY;
-        if (!apiKey) {
-            throw new Error("FORUMS_API_KEY is not set in environment variables");
-        }
-        headers["x-api-key"] = apiKey;
     }
 
     const url = `${FORUMS_BASE_URL}${path}`;
@@ -248,4 +249,29 @@ export async function searchUsers(query: string): Promise<ForumsUser[]> {
         path: `/api/v1/search?query=${encodeURIComponent(query)}&type=users`,
     });
     return result.users || [];
+}
+
+// --- Password Management ---
+
+export async function resetPassword(data: {
+    email: string;
+    oldPassword: string;
+    password: string;
+}, token: string) {
+    return forumsRequest<{ message: string }>({
+        method: "POST",
+        path: "/api/v1/auth/reset-password",
+        body: data,
+        token,
+    });
+}
+
+// --- Account Management ---
+
+export async function deleteUser(id: string, token?: string) {
+    return forumsRequest<ForumsUser>({
+        method: "DELETE",
+        path: `/api/v1/user/${id}`,
+        token,
+    });
 }
