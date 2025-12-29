@@ -229,3 +229,21 @@ export async function updateUser(
         body: data,
     });
 }
+
+// Get a user by ID
+export async function getUser(id: string): Promise<ForumsUser> {
+    return forumsRequest<ForumsUser>({
+        method: "GET",
+        path: `/api/v1/user/${id}`,
+    });
+}
+
+// Search users by username (using the search endpoint)
+export async function searchUsers(query: string): Promise<ForumsUser[]> {
+    // The Foru.ms API has a search endpoint that can search users
+    const result = await forumsRequest<{ users?: ForumsUser[] }>({
+        method: "GET",
+        path: `/api/v1/search?q=${encodeURIComponent(query)}&type=user`,
+    });
+    return result.users || [];
+}

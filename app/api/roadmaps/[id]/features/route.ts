@@ -1,26 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forumsRequest, ForumsPost, ForumsThread, getMe, getThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
+import { RoadmapExtendedData, Feature } from "@/lib/types";
 
-interface Feature {
-    id: string;
-    title: string;
-    description: string;
-    status: "planned" | "in-progress" | "shipped";
-    votes: number;
-    upvotedBy: string[]; // Track who upvoted
-    createdAt: string;
-    comments?: { id: string; body: string; userId: string; username: string; createdAt: string }[];
-}
-
-interface RoadmapExtendedData {
-    type?: "roadmap";
-    status?: "planned" | "in-progress" | "shipped";
-    visibility?: "public" | "private";
-    description?: string;
-    followers?: string[];
-    ownerId?: string;
-    features?: Feature[];
+// Helper to check user's role in the roadmap
+function getUserRole(
+    userId: string,
+    extendedData: RoadmapExtendedData | undefined,
+    threadOwnerId?: string
+): "owner" | "editor" | "viewer" | null {
+    if (extendedData?.ownerId === userId || threadOwnerId === userId) {
+        return "owner";
+    }
+    const teamMember = extendedData?.team?.find(
+        (m) => m.userId === userId && m.status === "accepted"
+    );
+    return teamMember?.role || null;
 }
 
 // GET /api/roadmaps/[id]/features - List features for a roadmap
@@ -52,7 +47,7 @@ export async function GET(
 
         console.log("[GET /features] Found features:", features.length);
 
-        // Format for frontend
+        // Format for frontend - include createdBy info
         const formattedFeatures = features.map(f => ({
             id: f.id,
             title: f.title,
@@ -63,6 +58,7 @@ export async function GET(
             hasUpvoted: currentUserId ? (f.upvotedBy || []).includes(currentUserId) : false,
             comments: (f.comments || []).length,
             roadmapId,
+            createdBy: f.createdBy,
         }));
 
         return NextResponse.json({ features: formattedFeatures });
@@ -93,8 +89,23 @@ export async function POST(
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
         }
 
+        // Get the thread and check permissions
+        const thread = await getThread(roadmapId);
+        const threadExtended = (thread.extendedData as unknown as RoadmapExtendedData) || {} as RoadmapExtendedData;
+        const threadOwnerId = (thread as unknown as { userId?: string }).userId;
+
+        // Check if user has permission to create features
+        const userRole = getUserRole(user.id, threadExtended, threadOwnerId);
+
+        if (userRole !== "owner" && userRole !== "editor") {
+            return NextResponse.json(
+                { error: "You don't have permission to add features to this roadmap" },
+                { status: 403 }
+            );
+        }
+
         console.log("[POST /features] Creating feature for roadmap:", roadmapId);
-        console.log("[POST /features] Title:", title, "Status:", status);
+        console.log("[POST /features] Title:", title, "Status:", status, "By:", user.username);
 
         // Create the feature as a post in the roadmap thread
         const postExtendedData = {
@@ -102,6 +113,7 @@ export async function POST(
             title,
             status,
             votes: 0,
+            createdBy: { userId: user.id, username: user.username },
         };
 
         const post = await forumsRequest<ForumsPost>({
@@ -127,16 +139,16 @@ export async function POST(
             votes: 0,
             upvotedBy: [],
             createdAt: post.createdAt || new Date().toISOString(),
+            createdBy: { userId: user.id, username: user.username },
         };
 
         // Update the roadmap thread's extendedData to include this feature
-        const thread = await getThread(roadmapId);
-        const threadExtended = (thread.extendedData as RoadmapExtendedData) || {};
         const features = threadExtended.features || [];
         features.push(newFeature);
 
         console.log("[POST /features] Updating thread extendedData with", features.length, "features");
 
+        // Use API key to ensure team members can update
         await forumsRequest<ForumsThread>({
             method: "PUT",
             path: `/api/v1/thread/${roadmapId}`,
@@ -146,7 +158,6 @@ export async function POST(
                     features,
                 },
             },
-            token,
         });
 
         console.log("[POST /features] Thread updated successfully");
@@ -161,6 +172,7 @@ export async function POST(
                 hasUpvoted: false,
                 roadmapId,
                 createdAt: post.createdAt,
+                createdBy: { userId: user.id, username: user.username },
             },
         }, { status: 201 });
     } catch (error) {
@@ -194,7 +206,7 @@ export async function PUT(
 
         // Get the thread
         const thread = await getThread(roadmapId);
-        const threadExtended = (thread.extendedData as RoadmapExtendedData) || {};
+        const threadExtended = (thread.extendedData as unknown as RoadmapExtendedData) || {} as RoadmapExtendedData;
         const features = threadExtended.features || [];
 
         // Find the feature
@@ -235,7 +247,6 @@ export async function PUT(
         features[featureIndex] = feature;
 
         // Update the thread - use API key (no token) for admin access
-        // This allows non-owners to upvote features on any public roadmap
         await forumsRequest<ForumsThread>({
             method: "PUT",
             path: `/api/v1/thread/${roadmapId}`,
@@ -245,7 +256,6 @@ export async function PUT(
                     features,
                 },
             },
-            // Note: no token = uses API key auth for admin access
         });
 
         console.log("[PUT /features] Upvote updated. New vote count:", feature.votes);

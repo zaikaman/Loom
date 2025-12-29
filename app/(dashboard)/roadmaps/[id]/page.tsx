@@ -16,7 +16,8 @@ import {
     Copy,
     Eye,
     EyeOff,
-    Trash2
+    Trash2,
+    Users
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -28,6 +29,7 @@ import { Avatar } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { TeamManager } from "@/components/TeamManager"
 
 interface Feature {
     id: string
@@ -72,6 +74,9 @@ export default function RoadmapDetailPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [isOwner, setIsOwner] = useState(false)
+    const [isTeamMember, setIsTeamMember] = useState(false)
+    const [userRole, setUserRole] = useState<"owner" | "editor" | "viewer" | null>(null)
+    const [showTeamPanel, setShowTeamPanel] = useState(false)
 
     // Comment state
     const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set())
@@ -130,6 +135,8 @@ export default function RoadmapDetailPage() {
                 const roadmapData = await roadmapRes.json()
                 setRoadmap(roadmapData.roadmap)
                 setIsOwner(roadmapData.isOwner ?? false)
+                setIsTeamMember(roadmapData.isTeamMember ?? false)
+                setUserRole(roadmapData.userRole ?? null)
 
                 if (featuresRes.ok) {
                     const featuresData = await featuresRes.json()
@@ -733,6 +740,18 @@ export default function RoadmapDetailPage() {
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
+                                {/* Team Button - visible to owner and team members */}
+                                {isTeamMember && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowTeamPanel(!showTeamPanel)}
+                                        className={showTeamPanel ? "bg-slate-100" : ""}
+                                    >
+                                        <Users className="h-4 w-4 mr-2" />
+                                        Team
+                                    </Button>
+                                )}
                                 <Button variant="outline" size="sm" onClick={() => {
                                     navigator.clipboard.writeText(window.location.href)
                                     toast.success("Link copied to clipboard")
@@ -818,11 +837,31 @@ export default function RoadmapDetailPage() {
                                         </Button>
                                     </>
                                 )}
+                                {/* Team members with editor role can also add features */}
+                                {!isOwner && userRole === "editor" && (
+                                    <Button
+                                        className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                        onClick={() => setShowAddFeature(true)}
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" /> Add Feature
+                                    </Button>
+                                )}
                             </div>
                         </div>
 
                         {roadmap.description && (
                             <p className="text-slate-600 mt-4">{roadmap.description}</p>
+                        )}
+
+                        {/* Team Panel */}
+                        {showTeamPanel && isTeamMember && (
+                            <div className="mt-4">
+                                <TeamManager
+                                    roadmapId={roadmapId}
+                                    isOwner={isOwner}
+                                    onClose={() => setShowTeamPanel(false)}
+                                />
+                            </div>
                         )}
                     </div>
 
@@ -834,9 +873,9 @@ export default function RoadmapDetailPage() {
                             <Plus className="h-12 w-12 text-slate-300 mb-4" />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No features yet</h3>
                             <p className="text-slate-500 mb-4">
-                                {isOwner ? "Add your first feature to this roadmap." : "This roadmap doesn't have any features yet."}
+                                {(isOwner || userRole === "editor") ? "Add your first feature to this roadmap." : "This roadmap doesn't have any features yet."}
                             </p>
-                            {isOwner && (
+                            {(isOwner || userRole === "editor") && (
                                 <Button
                                     className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
                                     onClick={() => setShowAddFeature(true)}

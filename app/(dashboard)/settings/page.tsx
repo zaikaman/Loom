@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Bell, Users, Globe, Loader2 } from "lucide-react"
-import { Avatar } from "@/components/ui/avatar"
+import { Bell, Globe, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface User {
@@ -105,43 +103,7 @@ export default function SettingsPage() {
                     </CardFooter>
                 </Card>
 
-                {/* Team Members */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Users className="h-5 w-5 text-muted-foreground" /> Team Members
-                                </CardTitle>
-                                <CardDescription>Manage who has access to this workspace.</CardDescription>
-                            </div>
-                            <Button variant="outline" size="sm" onClick={() => toast("Team invites coming soon")}>Invite Member</Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {/* Current User (Owner) */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <Avatar fallback={user?.displayName?.[0] || user?.username?.[0] || "U"} />
-                                    <div>
-                                        <p className="text-sm font-medium leading-none">
-                                            {user?.displayName || user?.username || "You"}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">{user?.email}</p>
-                                    </div>
-                                </div>
-                                <Badge variant="outline" className="capitalize">Owner</Badge>
-                            </div>
 
-                            {/* Placeholder for team feature */}
-                            <div className="text-center py-6 text-muted-foreground">
-                                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                <p className="text-sm">Team collaboration features coming soon.</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* Notifications */}
                 <Card>
