@@ -52,25 +52,9 @@ export default function NavigationBar() {
           </Link>
         ))}
         <Button
-          href="#contact"
+          href="/dashboard"
           variant="secondary"
           className="py-[18px] px-[34px]"
-          onClick={() => {
-            const href = "#contact";
-            if (href.startsWith("#")) {
-              const form = document.getElementById(
-                "contact-form"
-              ) as HTMLFormElement;
-              const inputs = form?.elements?.namedItem?.("formType");
-              if (inputs && "value" in inputs) {
-                inputs.value = "get-quote";
-              }
-              const element = document.querySelector(href);
-              if (element) {
-                element.scrollIntoView({ behavior: "smooth" });
-              }
-            }
-          }}
         >
           Get Started
         </Button>

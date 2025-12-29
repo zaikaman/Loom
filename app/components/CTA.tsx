@@ -29,6 +29,7 @@ export default function CTA({ className }: CTAProps) {
             Join the community of makers building in public. Create your interactive roadmap with Loom today.
           </p>
           <Button
+            href="/dashboard"
             variant="primary"
             className="py-[19px] mb-[2px] max-sm:w-full justify-center"
           >

@@ -26,6 +26,7 @@ export default function Header({ className }: { className?: string }) {
         </p>
         <Button
           variant="primary"
+          href="/dashboard"
           className="py-[19px] pr-[36px] max-md:w-full justify-center"
         >
           Get Started

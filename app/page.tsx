@@ -9,7 +9,7 @@ import CaseStudies from "./components/CaseStudies";
 import Process from "./components/Process";
 
 import Testimonials from "./components/Testimonials";
-import Contact from "./components/Contact";
+
 import Footer from "./components/Footer";
 
 export default async function Home() {
@@ -46,13 +46,7 @@ export default async function Home() {
         subheadingClassName="max-w-[473px]"
       />
       <Testimonials className="mt-[80px] max-lg:mt-[60px] max-sm:mt-[40px]" />
-      <HeadingSubheading
-        className="mt-[140px] max-lg:mt-[100px] max-sm:mt-[60px]"
-        heading="Get Started"
-        subheading="Ready to build in public? Join Loom today."
-        subheadingClassName="max-w-[323px]"
-      />
-      <Contact className="mt-[80px] max-lg:mt-[60px] max-sm:mt-[40px]" />
+
       <Footer className="mt-[140px] max-lg:mt-[100px] max-sm:mt-[60px]" />
       <Attribution />
     </div>
