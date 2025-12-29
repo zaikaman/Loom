@@ -148,6 +148,11 @@ export default function RoadmapDetailPage() {
     const [featureToDelete, setFeatureToDelete] = useState<string | null>(null)
     const [isDeletingFeature, setIsDeletingFeature] = useState(false)
 
+    // Mass Add state
+    const [showMassAddModal, setShowMassAddModal] = useState(false)
+    const [massAddJson, setMassAddJson] = useState("")
+    const [isMassAdding, setIsMassAdding] = useState(false)
+
     // Close dropdown when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -675,6 +680,55 @@ export default function RoadmapDetailPage() {
         }
     }
 
+    const handleMassAddFeatures = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!massAddJson.trim()) {
+            toast.error("Please enter JSON data")
+            return
+        }
+
+        let parsedFeatures
+        try {
+            parsedFeatures = JSON.parse(massAddJson)
+            if (!Array.isArray(parsedFeatures)) {
+                throw new Error("JSON must be an array of objects")
+            }
+        } catch {
+            toast.error("Invalid JSON format")
+            return
+        }
+
+        setIsMassAdding(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features/mass`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ features: parsedFeatures })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to add features")
+            }
+
+            // Add the new features to the list
+            setFeatures(prev => [...prev, ...data.features])
+
+            // Reset form and close dialog
+            setMassAddJson("")
+            setShowMassAddModal(false)
+            toast.success(`Successfully added ${data.count} features!`)
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to add features"
+            toast.error(message)
+        } finally {
+            setIsMassAdding(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -700,6 +754,57 @@ export default function RoadmapDetailPage() {
 
     return (
         <div className="flex h-full flex-col md:flex-row overflow-hidden">
+            {/* Mass Add Modal */}
+            {showMassAddModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                        <div className="flex items-center justify-between p-4 border-b">
+                            <h2 className="text-lg font-semibold">Mass Add Features</h2>
+                            <Button variant="ghost" size="icon" onClick={() => setShowMassAddModal(false)}>
+                                <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <form onSubmit={handleMassAddFeatures} className="p-4 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Paste JSON Schema
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                    Expected format: <code>[{`{"title": "Feature Name", "description": "...", "status": "planned"}`}]</code>
+                                </p>
+                                <textarea
+                                    className="flex min-h-[300px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono"
+                                    placeholder={`[\n  {\n    "title": "Dark Mode",\n    "description": "Add support for dark mode",\n    "status": "planned"\n  }\n]`}
+                                    value={massAddJson}
+                                    onChange={(e) => setMassAddJson(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowMassAddModal(false)}
+                                    disabled={isMassAdding}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={isMassAdding}>
+                                    {isMassAdding ? (
+                                        <>
+                                            <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" />
+                                            Importing...
+                                        </>
+                                    ) : (
+                                        "Import Features"
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Add Feature Dialog/Modal */}
             {showAddFeature && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -1357,6 +1462,19 @@ export default function RoadmapDetailPage() {
                                                             <HugeiconsIcon icon={Copy01Icon} className="h-4 w-4 text-slate-500" />
                                                             Duplicate
                                                         </button>
+
+                                                        {(isOwner || userRole === "editor") && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setShowMoreOptions(false)
+                                                                    setShowMassAddModal(true)
+                                                                }}
+                                                                className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                                            >
+                                                                <HugeiconsIcon icon={SparklesIcon} className="h-4 w-4 text-slate-500" />
+                                                                Mass Add Features
+                                                            </button>
+                                                        )}
 
                                                         {isOwner && (
                                                             <button
