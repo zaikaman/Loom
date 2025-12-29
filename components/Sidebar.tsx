@@ -11,6 +11,7 @@ import {
     Settings,
     Compass,
 } from "lucide-react"
+import LogoIcon from "@/app/assets/icons/logo-icon.svg"
 import { cn } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
 import { LogoutButton } from "@/components/LogoutButton"
@@ -60,11 +61,11 @@ export function Sidebar({ className }: { className?: string }) {
             {/* Top Section */}
             <div className="flex flex-col p-4 space-y-6">
                 {/* Logo */}
-                <div className="flex items-center px-2">
+                <Link href="/" className="flex items-center px-2 hover:opacity-80 transition-opacity">
                     {/* Logo Icon */}
-                    <div className="h-8 w-8 rounded bg-primary mr-3 flex items-center justify-center text-primary-foreground font-bold">L</div>
+                    <LogoIcon className="h-8 w-8 mr-3 text-primary" />
                     <span className="text-xl font-bold text-foreground tracking-tight">Loom</span>
-                </div>
+                </Link>
 
                 {/* Nav Items */}
                 <nav className="flex flex-col space-y-1">
