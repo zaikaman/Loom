@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forumsRequest, ForumsThread, getMe, getThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
-import { cookies } from "next/headers";
+import { getUserIndexThreadId, updateUserThreadsMap } from "@/lib/cloudinary";
 
 interface RoadmapExtendedData {
     type: "roadmap";
@@ -15,26 +15,6 @@ interface RoadmapExtendedData {
 interface IndexExtendedData {
     type: "loom-index";
     roadmapIds: string[];
-}
-
-const INDEX_THREAD_COOKIE_PREFIX = "loom_index_thread_";
-
-// Get index thread ID from cookie (user-specific)
-async function getIndexThreadIdFromCookie(userId: string): Promise<string | null> {
-    const cookieStore = await cookies();
-    return cookieStore.get(`${INDEX_THREAD_COOKIE_PREFIX}${userId}`)?.value || null;
-}
-
-// Store index thread ID in cookie (user-specific)
-async function setIndexThreadIdCookie(userId: string, threadId: string): Promise<void> {
-    const cookieStore = await cookies();
-    cookieStore.set(`${INDEX_THREAD_COOKIE_PREFIX}${userId}`, threadId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: "/",
-    });
 }
 
 // Create an index thread for a user
@@ -59,7 +39,7 @@ async function createIndexThread(userId: string, token: string): Promise<ForumsT
     });
 
     console.log("[createIndexThread] Created:", thread.id);
-    await setIndexThreadIdCookie(userId, thread.id);
+    await updateUserThreadsMap(userId, thread.id);
 
     return thread;
 }
@@ -99,7 +79,7 @@ export async function GET(request: NextRequest) {
         }
 
         const user = await getMe(token);
-        const indexThreadId = await getIndexThreadIdFromCookie(user.id);
+        const indexThreadId = await getUserIndexThreadId(user.id);
 
         console.log("[GET /api/roadmaps] User:", user.id, "Index thread:", indexThreadId);
 
@@ -145,7 +125,7 @@ export async function GET(request: NextRequest) {
                         description: extendedData?.description || thread.body || "",
                         status: extendedData?.status || "planned",
                         visibility: extendedData?.visibility || "public",
-                        lastUpdated: thread.updatedAt,
+                        lastUpdated: thread.createdAt,
                         featureCount: 0,
                     };
                 } catch {
@@ -208,8 +188,8 @@ export async function POST(request: NextRequest) {
 
         console.log("[POST /api/roadmaps] Roadmap thread created:", thread.id);
 
-        // Get or create the index thread
-        let indexThreadId = await getIndexThreadIdFromCookie(user.id);
+        // Get or create the index thread (from Cloudinary)
+        let indexThreadId = await getUserIndexThreadId(user.id);
         let currentIds: string[] = [];
 
         if (!indexThreadId) {

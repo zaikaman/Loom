@@ -720,142 +720,164 @@ export default function RoadmapDetailPage() {
             <div className="flex-1 overflow-y-auto">
                 <div className="container mx-auto px-6 py-8 max-w-5xl">
                     {/* Breadcrumb & Header */}
-                    <div className="mb-8">
-                        <div className="flex items-center text-sm text-slate-500 mb-4">
+                    {/* Breadcrumb & Header */}
+                    <div className="mb-12">
+                        <div className="flex items-center text-sm text-slate-500 mb-6">
                             <Link href={isOwner ? "/roadmaps" : "/feed"} className="hover:text-slate-900 transition-colors">
                                 {isOwner ? "My Roadmaps" : "Discover"}
                             </Link>
-                            <ChevronRight className="h-4 w-4 mx-2" />
-                            <span className="text-slate-900 font-medium">{roadmap.title}</span>
+                            <ChevronRight className="h-4 w-4 mx-2 text-slate-300" />
+                            <span className="text-slate-900 font-medium truncate max-w-[200px]">{roadmap.title}</span>
                         </div>
 
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h1 className="text-3xl font-bold text-slate-900">{roadmap.title}</h1>
-                                    <StatusBadge status={roadmap.status} />
-                                </div>
-                                <p className="text-slate-500 flex items-center gap-2">
-                                    <Calendar className="h-4 w-4" /> {dateRange}
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {/* Team Button - visible to owner and team members */}
-                                {isTeamMember && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setShowTeamPanel(!showTeamPanel)}
-                                        className={showTeamPanel ? "bg-slate-100" : ""}
-                                    >
-                                        <Users className="h-4 w-4 mr-2" />
-                                        Team
-                                    </Button>
-                                )}
-                                <Button variant="outline" size="sm" onClick={() => {
-                                    navigator.clipboard.writeText(window.location.href)
-                                    toast.success("Link copied to clipboard")
-                                }}>
-                                    <Share2 className="h-4 w-4 mr-2" /> Share
-                                </Button>
-                                {isOwner && (
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={handlePublishToFeed}
-                                            disabled={isPublishing}
-                                        >
-                                            {isPublishing ? (
-                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            ) : (
-                                                <Globe className="h-4 w-4 mr-2" />
-                                            )}
-                                            Publish
-                                        </Button>
-                                        <div className="relative" ref={dropdownRef}>
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                onClick={() => setShowMoreOptions(!showMoreOptions)}
-                                            >
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
+                        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="space-y-4 max-w-3xl">
+                                <h1 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl leading-tight">
+                                    {roadmap.title}
+                                </h1>
 
-                                            {/* Dropdown Menu */}
-                                            {showMoreOptions && (
-                                                <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
-                                                    <button
-                                                        onClick={handleOpenEditModal}
-                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                                    >
-                                                        <Pencil className="h-4 w-4 text-slate-500" />
-                                                        Edit Roadmap
-                                                    </button>
-                                                    <button
-                                                        onClick={handleDuplicateRoadmap}
-                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                                    >
-                                                        <Copy className="h-4 w-4 text-slate-500" />
-                                                        Duplicate
-                                                    </button>
-                                                    <button
-                                                        onClick={handleToggleVisibility}
-                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                                    >
-                                                        {roadmap.visibility === "public" ? (
-                                                            <>
-                                                                <EyeOff className="h-4 w-4 text-slate-500" />
-                                                                Make Private
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Eye className="h-4 w-4 text-slate-500" />
-                                                                Make Public
-                                                            </>
-                                                        )}
-                                                    </button>
-                                                    <div className="my-1 border-t border-slate-100" />
-                                                    <button
-                                                        onClick={() => {
-                                                            setShowMoreOptions(false)
-                                                            setShowDeleteModal(true)
-                                                        }}
-                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        Delete Roadmap
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <Button
-                                            className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
-                                            onClick={() => setShowAddFeature(true)}
-                                        >
-                                            <Plus className="h-4 w-4 mr-2" /> Add Feature
-                                        </Button>
-                                    </>
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                                    <StatusBadge status={roadmap.status} />
+                                    <span className="text-slate-300">|</span>
+                                    <span className="flex items-center gap-1.5">
+                                        <Calendar className="h-4 w-4" /> {dateRange}
+                                    </span>
+                                    <span className="text-slate-300">|</span>
+                                    <Badge variant="secondary" className="font-normal capitalize bg-slate-100 text-slate-600 hover:bg-slate-200">
+                                        {roadmap.visibility}
+                                    </Badge>
+                                </div>
+
+                                {roadmap.description && (
+                                    <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
+                                        {roadmap.description}
+                                    </p>
                                 )}
-                                {/* Team members with editor role can also add features */}
-                                {!isOwner && userRole === "editor" && (
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* Primary Action: Add Feature */}
+                                {(isOwner || userRole === "editor") && (
                                     <Button
-                                        className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                        className="h-10 px-6 bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
                                         onClick={() => setShowAddFeature(true)}
                                     >
                                         <Plus className="h-4 w-4 mr-2" /> Add Feature
                                     </Button>
                                 )}
+
+                                {/* Secondary Actions Group */}
+                                <div className="flex items-center bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 text-slate-600 hover:text-slate-900"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(window.location.href)
+                                            toast.success("Link copied to clipboard")
+                                        }}
+                                    >
+                                        <Share2 className="h-4 w-4 mr-2" /> Share
+                                    </Button>
+
+                                    {isTeamMember && (
+                                        <>
+                                            <div className="w-[1px] h-4 bg-slate-200 mx-1" />
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className={`h-8 text-slate-600 hover:text-slate-900 ${showTeamPanel ? "bg-slate-100 text-slate-900" : ""}`}
+                                                onClick={() => setShowTeamPanel(!showTeamPanel)}
+                                            >
+                                                <Users className="h-4 w-4 mr-2" /> Team
+                                            </Button>
+                                        </>
+                                    )}
+
+                                    {isOwner && (
+                                        <>
+                                            <div className="w-[1px] h-4 bg-slate-200 mx-1" />
+                                            <div className="relative" ref={dropdownRef}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 px-0 text-slate-600 hover:text-slate-900"
+                                                    onClick={() => setShowMoreOptions(!showMoreOptions)}
+                                                >
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+
+                                                {/* Dropdown Menu */}
+                                                {showMoreOptions && (
+                                                    <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-50 p-1 animate-in fade-in-0 zoom-in-95">
+                                                        <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                                            Management
+                                                        </div>
+
+                                                        <button
+                                                            onClick={handlePublishToFeed}
+                                                            disabled={isPublishing}
+                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
+                                                        >
+                                                            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4 text-slate-500" />}
+                                                            Publish to Community
+                                                        </button>
+
+                                                        <button
+                                                            onClick={handleOpenEditModal}
+                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                                        >
+                                                            <Pencil className="h-4 w-4 text-slate-500" />
+                                                            Edit Details
+                                                        </button>
+
+                                                        <button
+                                                            onClick={handleDuplicateRoadmap}
+                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                                        >
+                                                            <Copy className="h-4 w-4 text-slate-500" />
+                                                            Duplicate
+                                                        </button>
+
+                                                        <button
+                                                            onClick={handleToggleVisibility}
+                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                                        >
+                                                            {roadmap.visibility === "public" ? (
+                                                                <>
+                                                                    <EyeOff className="h-4 w-4 text-slate-500" /> Make Private
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Eye className="h-4 w-4 text-slate-500" /> Make Public
+                                                                </>
+                                                            )}
+                                                        </button>
+
+                                                        <div className="my-1 border-t border-slate-100" />
+
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowMoreOptions(false)
+                                                                setShowDeleteModal(true)
+                                                            }}
+                                                            className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            Delete Roadmap
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {roadmap.description && (
-                            <p className="text-slate-600 mt-4">{roadmap.description}</p>
-                        )}
-
-                        {/* Team Panel */}
+                        {/* Team Panel (collapsible) */}
                         {showTeamPanel && isTeamMember && (
-                            <div className="mt-4">
+                            <div className="mt-8 animate-in slide-in-from-top-2 fade-in duration-200">
                                 <TeamManager
                                     roadmapId={roadmapId}
                                     isOwner={isOwner}
@@ -865,7 +887,7 @@ export default function RoadmapDetailPage() {
                         )}
                     </div>
 
-                    <Separator className="mb-8" />
+                    <Separator className="mb-12" />
 
                     {/* Timeline View */}
                     {features.length === 0 ? (

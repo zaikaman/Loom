@@ -6,6 +6,23 @@ import { MiniTimeline } from "@/components/MiniTimeline"
 import { StatusBadge, type StatusType } from "@/components/StatusBadge"
 import { Button } from "@/components/ui/button"
 
+// Format ISO date string to user-friendly local time
+function formatDate(isoDate: string): string {
+    try {
+        const date = new Date(isoDate)
+        return date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        })
+    } catch {
+        return isoDate
+    }
+}
+
 interface RoadmapCardProps {
     id: string
     title: string
@@ -59,9 +76,9 @@ export function RoadmapCard({
 
             <CardFooter className="border-t border-border bg-secondary/30 p-4">
                 <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center space-x-2">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>{lastUpdated}</span>
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span>Created {formatDate(lastUpdated)}</span>
                     </div>
                     <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-background" asChild>
                         <Link href={`/roadmaps/${id}`}>
