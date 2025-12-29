@@ -23,6 +23,15 @@ export interface Feature {
         username: string;
     };
     comments?: { id: string; body: string; userId: string; username: string; createdAt: string }[];
+    aiAnalysis?: AIAnalysis;
+}
+
+export interface AIAnalysis {
+    sentiment: "Angry" | "Excited" | "Neutral";
+    type: "Bug" | "Feature" | "Enhancement";
+    impactScore: number; // 1-10
+    effortScore: number; // 1-10
+    reasoning: string;
 }
 
 export interface RoadmapLinks {
@@ -42,4 +51,5 @@ export interface RoadmapExtendedData {
     team?: TeamMember[];
     features?: Feature[];
     links?: RoadmapLinks;
+    aiAnalysis?: AIAnalysis;
 }

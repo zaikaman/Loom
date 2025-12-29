@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
                         featureCount: extendedData?.features?.length || 0,
                         team: extendedData?.team || [],
                         links: extendedData?.links,
+                        aiAnalysis: extendedData?.aiAnalysis,
                     };
                 } catch {
                     return null;
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             roadmap: {
                 id: thread.id,
                 title: thread.title,
@@ -168,6 +169,27 @@ export async function POST(request: NextRequest) {
                 links: roadmapExtendedData.links,
             }
         }, { status: 201 });
+
+        // Trigger AI Triage (Fire and forget, or await to ensure it runs in this env)
+        // detailed hackathon note: using await to ensure it completes in serverless dev env
+        const protocol = request.headers.get("x-forwarded-proto") || "http";
+        const host = request.headers.get("host");
+        const baseUrl = `${protocol}://${host}`;
+
+        console.log(`[POST /api/roadmaps] Triggering AI triage for Roadmap ${thread.id}`);
+
+        fetch(`${baseUrl}/api/webhooks/triage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                text: `${title}\n${description || ""}`,
+                resourceId: thread.id,
+                resourceType: "roadmap",
+            }),
+        }).catch(err => console.error("Failed to trigger triage:", err));
+
+        return response;
+
     } catch (error) {
         console.error("[POST /api/roadmaps] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to create roadmap";

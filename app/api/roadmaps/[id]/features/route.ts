@@ -59,6 +59,7 @@ export async function GET(
             comments: (f.comments || []).length,
             roadmapId,
             createdBy: f.createdBy,
+            aiAnalysis: f.aiAnalysis,
         }));
 
         return NextResponse.json({ features: formattedFeatures });
@@ -162,7 +163,7 @@ export async function POST(
 
         console.log("[POST /features] Thread updated successfully");
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             feature: {
                 id: post.id,
                 title,
@@ -175,6 +176,27 @@ export async function POST(
                 createdBy: { userId: user.id, username: user.username },
             },
         }, { status: 201 });
+
+        // Trigger AI Triage
+        const protocol = request.headers.get("x-forwarded-proto") || "http";
+        const host = request.headers.get("host");
+        const baseUrl = `${protocol}://${host}`;
+
+        console.log(`[POST /api/features] Triggering AI triage for Feature ${post.id}`);
+
+        // Fire and forget - do not await
+        fetch(`${baseUrl}/api/webhooks/triage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                text: `${title}\n${description || ""}`,
+                resourceId: post.id,
+                resourceType: "feature",
+                parentId: roadmapId,
+            }),
+        }).catch(err => console.error("Failed to trigger triage:", err));
+
+        return response;
     } catch (error) {
         console.error("[POST /features] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to create feature";

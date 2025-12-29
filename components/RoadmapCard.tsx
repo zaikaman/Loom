@@ -83,7 +83,7 @@ export function RoadmapCard({
                     </div>
                     <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-background" asChild>
                         <Link href={`/roadmaps/${id}`}>
-                            View <HugeiconsIcon icon={ArrowRight01Icon} className="ml-2 h-3 w-3" />
+                            View →
                         </Link>
                     </Button>
                 </div>

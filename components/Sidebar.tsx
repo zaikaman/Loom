@@ -13,6 +13,7 @@ import {
     Compass01Icon,
     BubbleChatIcon,
     SparklesIcon,
+    Task01Icon,
 } from "@hugeicons/core-free-icons"
 import LogoIcon from "@/app/assets/icons/logo-icon.svg"
 import { cn } from "@/lib/utils"
@@ -23,6 +24,7 @@ const navItems = [
     { name: "Overview", href: "/dashboard", icon: Home01Icon },
     { name: "Discover", href: "/feed", icon: Compass01Icon },
     { name: "My Roadmaps", href: "/roadmaps", icon: Menu01Icon },
+    { name: "PM Dashboard", href: "/pm-dashboard", icon: Task01Icon },
     { name: "Loom AI", href: "/ai", icon: SparklesIcon },
     { name: "Chat", href: "/chat", icon: BubbleChatIcon },
     { name: "New Roadmap", href: "/roadmaps/new", icon: PlusSignCircleIcon },
