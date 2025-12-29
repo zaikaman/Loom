@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
                         lastUpdated: thread.createdAt,
                         featureCount: extendedData?.features?.length || 0,
                         team: extendedData?.team || [],
+                        links: extendedData?.links,
                     };
                 } catch {
                     return null;
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
 
         const user = await getMe(token);
         const body = await request.json();
-        const { title, description, visibility = "public" } = body;
+        const { title, description, visibility = "public", links } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -114,6 +115,7 @@ export async function POST(request: NextRequest) {
             description,
             followers: [],
             ownerId: user.id,
+            links,
         };
 
         const thread = await forumsRequest<ForumsThread>({
@@ -163,6 +165,7 @@ export async function POST(request: NextRequest) {
                 status: roadmapExtendedData.status,
                 visibility: roadmapExtendedData.visibility,
                 createdAt: thread.createdAt,
+                links: roadmapExtendedData.links,
             }
         }, { status: 201 });
     } catch (error) {

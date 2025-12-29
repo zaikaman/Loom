@@ -25,6 +25,13 @@ export interface Feature {
     comments?: { id: string; body: string; userId: string; username: string; createdAt: string }[];
 }
 
+export interface RoadmapLinks {
+    github?: string;
+    liveDemo?: string;
+    documentation?: string;
+    website?: string;
+}
+
 export interface RoadmapExtendedData {
     type: "roadmap";
     status: "planned" | "in-progress" | "shipped";
@@ -34,4 +41,5 @@ export interface RoadmapExtendedData {
     followers?: string[];
     team?: TeamMember[];
     features?: Feature[];
+    links?: RoadmapLinks;
 }

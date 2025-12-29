@@ -86,6 +86,7 @@ export async function GET(
                 updatedAt: thread.updatedAt,
                 teamCount,
                 author,
+                links: extendedData?.links,
             },
             isOwner,
             isTeamMember,
@@ -111,7 +112,7 @@ export async function PUT(
         const user = await getMe(token);
         const { id } = await params;
         const body = await request.json();
-        const { title, description, status, visibility } = body;
+        const { title, description, status, visibility, links } = body;
 
         // First get the existing thread to merge extendedData
         const existing = await getThread(id);
@@ -144,6 +145,7 @@ export async function PUT(
             ownerId: existingExtended?.ownerId,
             team: existingExtended?.team || [],
             features: existingExtended?.features || [],
+            links: links !== undefined ? links : existingExtended?.links,
         };
 
         // Use API key for update to ensure it works for team members
@@ -165,6 +167,7 @@ export async function PUT(
                 status: newExtendedData.status,
                 visibility: newExtendedData.visibility,
                 updatedAt: thread.updatedAt,
+                links: newExtendedData.links,
             },
         });
     } catch (error) {

@@ -17,7 +17,11 @@ import {
     Eye,
     EyeOff,
     Trash2,
-    Users
+    Users,
+    Github,
+    ExternalLink,
+    BookOpen,
+    Link as LinkIcon
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -53,6 +57,13 @@ interface Comment {
     createdAt: string
 }
 
+interface RoadmapLinks {
+    github?: string
+    liveDemo?: string
+    documentation?: string
+    website?: string
+}
+
 interface Roadmap {
     id: string
     title: string
@@ -66,6 +77,7 @@ interface Roadmap {
         username: string
         avatarUrl?: string
     }
+    links?: RoadmapLinks
 }
 
 export default function RoadmapDetailPage() {
@@ -109,7 +121,13 @@ export default function RoadmapDetailPage() {
     const [editForm, setEditForm] = useState({
         title: "",
         description: "",
-        status: "planned" as "planned" | "in-progress" | "shipped"
+        status: "planned" as "planned" | "in-progress" | "shipped",
+        links: {
+            github: "",
+            liveDemo: "",
+            documentation: "",
+            website: ""
+        }
     })
 
     // Close dropdown when clicking outside
@@ -373,7 +391,13 @@ export default function RoadmapDetailPage() {
             setEditForm({
                 title: roadmap.title,
                 description: roadmap.description || "",
-                status: roadmap.status
+                status: roadmap.status,
+                links: {
+                    github: roadmap.links?.github || "",
+                    liveDemo: roadmap.links?.liveDemo || "",
+                    documentation: roadmap.links?.documentation || "",
+                    website: roadmap.links?.website || ""
+                }
             })
             setShowEditModal(true)
         }
@@ -657,6 +681,61 @@ export default function RoadmapDetailPage() {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Project Links Section */}
+                            <div className="space-y-3 pt-2">
+                                <label className="text-sm font-medium flex items-center gap-2">
+                                    <LinkIcon className="h-4 w-4 text-slate-400" />
+                                    Project Links
+                                </label>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Github className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <Input
+                                            placeholder="https://github.com/username/repo"
+                                            value={editForm.links.github}
+                                            onChange={(e) => setEditForm(prev => ({
+                                                ...prev,
+                                                links: { ...prev.links, github: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <ExternalLink className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <Input
+                                            placeholder="https://your-live-demo.com"
+                                            value={editForm.links.liveDemo}
+                                            onChange={(e) => setEditForm(prev => ({
+                                                ...prev,
+                                                links: { ...prev.links, liveDemo: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <BookOpen className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <Input
+                                            placeholder="https://docs.example.com"
+                                            value={editForm.links.documentation}
+                                            onChange={(e) => setEditForm(prev => ({
+                                                ...prev,
+                                                links: { ...prev.links, documentation: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Globe className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <Input
+                                            placeholder="https://your-website.com"
+                                            value={editForm.links.website}
+                                            onChange={(e) => setEditForm(prev => ({
+                                                ...prev,
+                                                links: { ...prev.links, website: e.target.value }
+                                            }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="flex justify-end gap-3 pt-4">
                                 <Button
                                     type="button"
@@ -780,6 +859,56 @@ export default function RoadmapDetailPage() {
                                     <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
                                         {roadmap.description}
                                     </p>
+                                )}
+
+                                {/* Project Links */}
+                                {(roadmap.links?.github || roadmap.links?.liveDemo || roadmap.links?.documentation || roadmap.links?.website) && (
+                                    <div className="flex flex-wrap items-center gap-2 pt-2">
+                                        {roadmap.links?.github && (
+                                            <a
+                                                href={roadmap.links.github}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-sm"
+                                            >
+                                                <Github className="h-4 w-4" />
+                                                GitHub
+                                            </a>
+                                        )}
+                                        {roadmap.links?.liveDemo && (
+                                            <a
+                                                href={roadmap.links.liveDemo}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors text-sm"
+                                            >
+                                                <ExternalLink className="h-4 w-4" />
+                                                Live Demo
+                                            </a>
+                                        )}
+                                        {roadmap.links?.documentation && (
+                                            <a
+                                                href={roadmap.links.documentation}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
+                                            >
+                                                <BookOpen className="h-4 w-4" />
+                                                Docs
+                                            </a>
+                                        )}
+                                        {roadmap.links?.website && (
+                                            <a
+                                                href={roadmap.links.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors text-sm"
+                                            >
+                                                <Globe className="h-4 w-4" />
+                                                Website
+                                            </a>
+                                        )}
+                                    </div>
                                 )}
                             </div>
 
@@ -1109,6 +1238,62 @@ export default function RoadmapDetailPage() {
                     </div>
 
                     <Separator />
+
+                    {/* Project Links in Sidebar */}
+                    {(roadmap.links?.github || roadmap.links?.liveDemo || roadmap.links?.documentation || roadmap.links?.website) && (
+                        <>
+                            <div>
+                                <h4 className="font-medium text-slate-900 mb-3">Project Links</h4>
+                                <div className="space-y-2">
+                                    {roadmap.links?.github && (
+                                        <a
+                                            href={roadmap.links.github}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                                        >
+                                            <Github className="h-4 w-4" />
+                                            <span className="truncate">{roadmap.links.github.replace(/^https?:\/\//, '')}</span>
+                                        </a>
+                                    )}
+                                    {roadmap.links?.liveDemo && (
+                                        <a
+                                            href={roadmap.links.liveDemo}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                            <span className="truncate">{roadmap.links.liveDemo.replace(/^https?:\/\//, '')}</span>
+                                        </a>
+                                    )}
+                                    {roadmap.links?.documentation && (
+                                        <a
+                                            href={roadmap.links.documentation}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                                        >
+                                            <BookOpen className="h-4 w-4" />
+                                            <span className="truncate">{roadmap.links.documentation.replace(/^https?:\/\//, '')}</span>
+                                        </a>
+                                    )}
+                                    {roadmap.links?.website && (
+                                        <a
+                                            href={roadmap.links.website}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                                        >
+                                            <Globe className="h-4 w-4" />
+                                            <span className="truncate">{roadmap.links.website.replace(/^https?:\/\//, '')}</span>
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                            <Separator />
+                        </>
+                    )}
 
                     <div>
                         <h4 className="font-medium text-slate-900 mb-3">Activity</h4>
