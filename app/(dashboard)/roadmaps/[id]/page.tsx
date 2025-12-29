@@ -715,7 +715,7 @@ export default function RoadmapDetailPage() {
                     {/* Breadcrumb & Header */}
                     <div className="mb-8">
                         <div className="flex items-center text-sm text-slate-500 mb-4">
-                            <Link href={isOwner ? "/roadmaps" : "/discover"} className="hover:text-slate-900 transition-colors">
+                            <Link href={isOwner ? "/roadmaps" : "/feed"} className="hover:text-slate-900 transition-colors">
                                 {isOwner ? "My Roadmaps" : "Discover"}
                             </Link>
                             <ChevronRight className="h-4 w-4 mx-2" />
