@@ -1,17 +1,10 @@
 import { cn } from "../lib/utils";
-import LinkedInIcon from "@/app/assets/icons/linkedin.svg";
-import FacebookIcon from "@/app/assets/icons/facebook.svg";
-import TwitterIcon from "@/app/assets/icons/twitter.svg";
 import Link from "next/link";
-import SubscriptionForm from "./SubscriptionForm";
 import Logo from "./Logo";
 
 const navLinks = [
-  { href: "#", label: "About us" },
-  { href: "#features", label: "Features" }, // Updated from Services
-  { href: "#use-cases", label: "Use Cases" },
-  { href: "#", label: "Pricing" },
-  { href: "#", label: "Blog" },
+  { href: "/docs", label: "Docs" },
+  { href: "https://github.com/zaikaman/Loom", label: "GitHub" },
 ];
 
 export default function Footer({ className }: { className?: string }) {
@@ -31,7 +24,7 @@ export default function Footer({ className }: { className?: string }) {
         )}
       >
         <div className="flex flex-col gap-[66px] max-lg:gap-[40px] items-start relative w-full">
-          {/* Top section: Logo, Navigation, Social Icons */}
+          {/* Top section: Logo and Navigation */}
           <div className="flex justify-between items-center relative w-full gap-[20px] max-lg:flex-wrap">
             {/* Logo with white fill */}
             <Logo className="w-auto h-[30px] text-white" />
@@ -48,63 +41,6 @@ export default function Footer({ className }: { className?: string }) {
                 </Link>
               ))}
             </div>
-
-            {/* Social Icons */}
-            <div className="h-[30px] relative shrink-0 flex gap-[20px] items-center">
-              {[
-                {
-                  icon: LinkedInIcon,
-                  href: "#",
-                  label: "LinkedIn",
-                },
-                {
-                  icon: FacebookIcon,
-                  href: "#",
-                  label: "Facebook",
-                },
-                {
-                  icon: TwitterIcon,
-                  href: "#",
-                  label: "Twitter",
-                },
-              ].map(({ icon: Icon, href, label }, index) => (
-                <Link
-                  key={index}
-                  href={href}
-                  className="block max-w-none size-full"
-                  aria-label={label}
-                >
-                  <Icon width={30} height={30} />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Middle section: Contact Info and Subscription */}
-          <div className="flex gap-[30px] items-center justify-between relative shrink-0 w-full max-md:flex-col max-md:items-start">
-            {/* Contact Information */}
-            <div className="flex flex-col gap-[27px] items-start relative flex-2 max-lg:flex-3">
-              <div className="flex flex-col items-start relative">
-                <div className="bg-[#b9ff66] flex flex-col items-start px-[7px] py-0 relative rounded-[7px]">
-                  <p className="font-medium leading-[normal] relative shrink-0 text-[20px] text-black">
-                    Contact us:
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col font-normal gap-[20px] items-start relative text-[18px] text-white">
-                <p className="leading-[normal] relative">
-                  Email: hello@loomRoadmap.com
-                </p>
-                <p className="leading-[normal] relative">Loom is a remote-first team.</p>
-                <div className="leading-[normal] relative">
-                  <p className="mb-0">Building in public</p>
-                  <p>for makers everywhere.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Subscription Form */}
-            <SubscriptionForm />
           </div>
         </div>
 
@@ -114,12 +50,6 @@ export default function Footer({ className }: { className?: string }) {
         {/* Bottom section: Line and Copyright */}
         <div className="flex font-normal gap-x-[41px] gap-y-[10px] items-start relative text-[18px]/[28px] text-white w-full flex-wrap">
           <p className="relative">© 2025 Loom. All Rights Reserved.</p>
-          <Link
-            href="."
-            className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid relative underline"
-          >
-            Privacy Policy
-          </Link>
         </div>
       </div>
     </div>

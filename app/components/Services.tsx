@@ -21,40 +21,40 @@ type ServiceItem = {
 
 const services: ServiceItem[] = [
   {
-    lines: ["Interactive", "Timelines"],
+    lines: ["Smart", "Triage"],
     cardVariant: "Grey",
     illustrationSrc: imgSEO,
-    illustrationAlt: "Interactive Timelines illustration",
+    illustrationAlt: "Smart Triage illustration",
     illustrationStyle: {
       containerHeight: 170,
       backgroundSize: { width: 148.84, height: 183.86 },
     },
   },
   {
-    lines: ["Headless &", "Flexible"],
+    lines: ["Interactive", "Roadmaps"],
     cardVariant: "Green",
     illustrationSrc: imgPPC,
-    illustrationAlt: "Headless & Flexible illustration",
+    illustrationAlt: "Interactive Roadmaps illustration",
     illustrationStyle: {
       containerHeight: 147.624,
       backgroundSize: { width: 126.73, height: 180.28 },
     },
   },
   {
-    lines: ["Community", "Engagement"],
+    lines: ["Community", "Voting"],
     cardVariant: "DarkWhite",
     illustrationSrc: imgSocialMedia,
-    illustrationAlt: "Community Engagement illustration",
+    illustrationAlt: "Community Voting illustration",
     illustrationStyle: {
       containerHeight: 210,
       backgroundSize: { width: 141.44, height: 141.44 },
     },
   },
   {
-    lines: ["Follows &", "Notifications"],
+    lines: ["Loom AI", "Assistant"],
     cardVariant: "Grey",
     illustrationSrc: imgEmail,
-    illustrationAlt: "Follows & Notifications illustration",
+    illustrationAlt: "Loom AI Assistant illustration",
     illustrationStyle: {
       containerHeight: 192.68,
       backgroundSize: { width: 140.67, height: 153.3 },
@@ -63,20 +63,20 @@ const services: ServiceItem[] = [
     },
   },
   {
-    lines: ["Threaded", "Progress"],
+    lines: ["Magic", "Expand"],
     cardVariant: "Green",
     illustrationSrc: imgContent,
-    illustrationAlt: "Threaded Progress illustration",
+    illustrationAlt: "Magic Expand illustration",
     illustrationStyle: {
       containerHeight: 195.915,
       backgroundSize: { width: 132.08, height: 141.26 },
     },
   },
   {
-    lines: ["Premium", "Design"],
+    lines: ["Impact &", "Effort"],
     cardVariant: "DarkGreen",
     illustrationSrc: imgAnalytics,
-    illustrationAlt: "Premium Design illustration",
+    illustrationAlt: "Impact & Effort illustration",
     illustrationStyle: {
       containerHeight: 170,
       backgroundSize: { width: 108.36, height: 134.02 },

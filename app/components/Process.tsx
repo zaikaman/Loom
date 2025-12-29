@@ -13,39 +13,39 @@ type ProcessItem = {
 const processItems: ProcessItem[] = [
   {
     number: "01",
-    title: "Connect",
+    title: "Create",
     description:
-      "Link your Foru.ms backend or compatible data source. Loom seamlessly integrates with your existing threaded discussions, requiring no migration or complex server setup.",
+      "Start a new roadmap in seconds. Loom automatically sets up the underlying thread structure and permissions, giving you a clean slate to build upon.",
   },
   {
     number: "02",
-    title: "Curate",
+    title: "Add Features",
     description:
-      "Select the threads you want to feature on your public roadmap. Loom automatically aggregates key details, allowing you to filter out noise and focus on what matters.",
+      "Draft new features or import them in bulk. Use Magic Expand to instantly turn simple one-liners into comprehensive product requirements documents.",
   },
   {
     number: "03",
-    title: "Design",
+    title: "Collaborate",
     description:
-      "Customize the look and feel of your timeline. Choose from our premium themes, adjust colors to match your brand, and configure display options for a cohesive experience.",
+      "Invite your team to the roadmap. Assign Owner, Editor, or Viewer roles to manage who can create features, edit content, and change statuses.",
   },
   {
     number: "04",
-    title: "Publish",
+    title: "Engage",
     description:
-      "With a single click, publish your interactive roadmap. Share the link with your community, embed it on your site, or use it as your primary changelog destination.",
+      "Share your roadmap publicly. Enable users to vote on features they want most and discuss implementation details directly in the feature threads.",
   },
   {
     number: "05",
-    title: "Engage",
+    title: "Analyze",
     description:
-      "Enable public voting and feedback. Let your users upvote features they want most and discuss details directly in the timeline threads, keeping everything centralized.",
+      "Let AI be your PM. The Triage System automatically analyzes incoming feedback, classifying sentiment and assigning Impact/Effort scores to help you prioritize.",
   },
   {
     number: "06",
-    title: "Update",
+    title: "Celebrate",
     description:
-      "As you ship features, update their status to 'In Progress' or 'Shipped'. Your timeline evolves automatically, keeping your community informed and excited about your progress.",
+      "Ship with style. When you move a feature to 'Shipped', Loom triggers valid confetti celebrations, keeping your community excited about progress.",
   },
 ];
 

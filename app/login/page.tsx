@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
+import LogoIcon from "@/app/assets/icons/logo-icon.svg"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -48,7 +49,7 @@ export default function LoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="flex items-center justify-center mb-4">
-                        <div className="h-10 w-10 rounded bg-primary mr-3 flex items-center justify-center text-primary-foreground font-bold text-lg">L</div>
+                        <LogoIcon className="h-10 w-10 fill-current text-primary mr-3" />
                         <span className="text-2xl font-bold text-foreground tracking-tight">Loom</span>
                     </div>
                     <CardTitle>Welcome back</CardTitle>

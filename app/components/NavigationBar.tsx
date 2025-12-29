@@ -5,10 +5,8 @@ import Button from "./Button";
 import { useState } from "react";
 
 const navLinks = [
-  { href: "#features", label: "Features" }, // Updated from Services
-  { href: "#use-cases", label: "Use Cases" },
-  { href: "#", label: "Pricing" },
-  { href: "#", label: "Blog" },
+  { href: "/docs", label: "Docs" },
+  { href: "https://github.com/zaikaman/Loom", label: "GitHub" },
 ];
 
 export default function NavigationBar() {
@@ -103,16 +101,7 @@ export default function NavigationBar() {
               {label}
             </Link>
           ))}
-          <Button
-            href="#contact"
-            variant="secondary"
-            className="py-[18px] px-[34px]"
-            popoverTarget="navigation-menu-dialog"
-            popoverTargetAction="hide"
-            onClick={closeMenu}
-          >
-            Request a quote
-          </Button>
+
         </div>
       </dialog>
     </div>

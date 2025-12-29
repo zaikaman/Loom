@@ -1,4 +1,5 @@
 import { cn } from "@/app/lib/utils";
+import Link from "next/link";
 
 type LearnMoreLinkVariant =
   | "White"
@@ -15,6 +16,7 @@ type LearnMoreLinkProps = {
   variant?: LearnMoreLinkVariant;
   children?: React.ReactNode;
   className?: string;
+  href?: string;
 };
 
 // Arrow SVG path d attribute - reusable constant
@@ -62,6 +64,7 @@ export default function LearnMoreLink({
   variant = "Black",
   children = "Learn more",
   className,
+  href = "/docs",
 }: LearnMoreLinkProps) {
   const isSimple =
     variant === "SimpleGreen" ||
@@ -113,9 +116,10 @@ export default function LearnMoreLink({
   const textColor = getTextColor();
 
   return (
-    <div
+    <Link
+      href={href}
       className={cn(
-        "flex items-center relative",
+        "flex items-center relative group w-fit cursor-pointer",
         isSimple ? "gap-[14px]" : "gap-[15px]",
         className
       )}
@@ -130,7 +134,7 @@ export default function LearnMoreLink({
       )}
       <p
         className={cn(
-          "font-normal leading-[28px] relative shrink-0 text-[20px]",
+          "font-normal leading-[28px] relative shrink-0 text-[20px] transition-transform group-hover:translate-x-1",
           textColor
         )}
       >
@@ -143,6 +147,6 @@ export default function LearnMoreLink({
           arrowFill={arrowFill}
         />
       )}
-    </div>
+    </Link>
   );
 }
