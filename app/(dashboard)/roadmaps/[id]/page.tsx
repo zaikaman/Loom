@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import {
     ChevronRight,
     Share2,
@@ -11,10 +11,15 @@ import {
     Calendar,
     Loader2,
     X,
-    Globe
+    Globe,
+    Pencil,
+    Copy,
+    Eye,
+    EyeOff,
+    Trash2
 } from "lucide-react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { StatusBadge } from "@/components/StatusBadge"
@@ -50,7 +55,9 @@ interface Roadmap {
 
 export default function RoadmapDetailPage() {
     const params = useParams()
+    const router = useRouter()
     const roadmapId = params.id as string
+    const dropdownRef = useRef<HTMLDivElement>(null)
 
     const [roadmap, setRoadmap] = useState<Roadmap | null>(null)
     const [features, setFeatures] = useState<Feature[]>([])
@@ -66,6 +73,29 @@ export default function RoadmapDetailPage() {
         description: "",
         status: "planned" as "planned" | "in-progress" | "shipped"
     })
+
+    // More options dropdown state
+    const [showMoreOptions, setShowMoreOptions] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [isUpdating, setIsUpdating] = useState(false)
+    const [editForm, setEditForm] = useState({
+        title: "",
+        description: "",
+        status: "planned" as "planned" | "in-progress" | "shipped"
+    })
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowMoreOptions(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
 
     useEffect(() => {
         async function fetchData() {
@@ -228,6 +258,133 @@ export default function RoadmapDetailPage() {
         }
     }
 
+    const handleOpenEditModal = () => {
+        if (roadmap) {
+            setEditForm({
+                title: roadmap.title,
+                description: roadmap.description || "",
+                status: roadmap.status
+            })
+            setShowEditModal(true)
+        }
+        setShowMoreOptions(false)
+    }
+
+    const handleUpdateRoadmap = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        if (!editForm.title.trim()) {
+            toast.error("Title is required")
+            return
+        }
+
+        setIsUpdating(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(editForm)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to update roadmap")
+            }
+
+            setRoadmap(prev => prev ? { ...prev, ...editForm } : null)
+            setShowEditModal(false)
+            toast.success("Roadmap updated successfully!")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to update roadmap"
+            toast.error(message)
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
+    const handleDuplicateRoadmap = async () => {
+        setShowMoreOptions(false)
+
+        try {
+            // Create a new roadmap with the same data
+            const res = await fetch("/api/roadmaps", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: `${roadmap?.title} (Copy)`,
+                    description: roadmap?.description || "",
+                    status: "planned",
+                    visibility: roadmap?.visibility || "private"
+                })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to duplicate roadmap")
+            }
+
+            toast.success("Roadmap duplicated! Redirecting...")
+            router.push(`/roadmaps/${data.roadmap.id}`)
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to duplicate roadmap"
+            toast.error(message)
+        }
+    }
+
+    const handleToggleVisibility = async () => {
+        setShowMoreOptions(false)
+
+        const newVisibility = roadmap?.visibility === "public" ? "private" : "public"
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ visibility: newVisibility })
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to update visibility")
+            }
+
+            setRoadmap(prev => prev ? { ...prev, visibility: newVisibility } : null)
+            toast.success(`Roadmap is now ${newVisibility}`)
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to update visibility"
+            toast.error(message)
+        }
+    }
+
+    const handleDeleteRoadmap = async () => {
+        setIsDeleting(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}`, {
+                method: "DELETE"
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to delete roadmap")
+            }
+
+            toast.success("Roadmap deleted successfully")
+            router.push("/roadmaps")
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to delete roadmap"
+            toast.error(message)
+        } finally {
+            setIsDeleting(false)
+            setShowDeleteModal(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -334,6 +491,126 @@ export default function RoadmapDetailPage() {
                 </div>
             )}
 
+            {/* Edit Roadmap Modal */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="flex items-center justify-between p-4 border-b">
+                            <h2 className="text-lg font-semibold">Edit Roadmap</h2>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setShowEditModal(false)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <form onSubmit={handleUpdateRoadmap} className="p-4 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Title <span className="text-destructive">*</span>
+                                </label>
+                                <Input
+                                    placeholder="Roadmap title"
+                                    value={editForm.title}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Description</label>
+                                <textarea
+                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    placeholder="Describe this roadmap..."
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Status</label>
+                                <div className="flex gap-3">
+                                    {(["planned", "in-progress", "shipped"] as const).map((status) => (
+                                        <label key={status} className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="editStatus"
+                                                value={status}
+                                                checked={editForm.status === status}
+                                                onChange={(e) => setEditForm(prev => ({
+                                                    ...prev,
+                                                    status: e.target.value as typeof prev.status
+                                                }))}
+                                                className="h-4 w-4"
+                                            />
+                                            <span className="text-sm capitalize">{status.replace("-", " ")}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setShowEditModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                    disabled={isUpdating}
+                                >
+                                    {isUpdating ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                                    ) : (
+                                        "Save Changes"
+                                    )}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+                        <div className="p-6">
+                            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100">
+                                <Trash2 className="h-6 w-6 text-red-600" />
+                            </div>
+                            <h2 className="text-lg font-semibold text-center mb-2">Delete Roadmap</h2>
+                            <p className="text-sm text-slate-500 text-center mb-6">
+                                Are you sure you want to delete <span className="font-medium text-slate-900">&ldquo;{roadmap.title}&rdquo;</span>?
+                                This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => setShowDeleteModal(false)}
+                                    disabled={isDeleting}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={handleDeleteRoadmap}
+                                    disabled={isDeleting}
+                                >
+                                    {isDeleting ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                                    ) : (
+                                        "Delete"
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content Area */}
             <div className="flex-1 overflow-y-auto">
                 <div className="container mx-auto px-6 py-8 max-w-5xl">
@@ -375,9 +652,62 @@ export default function RoadmapDetailPage() {
                                     )}
                                     Publish
                                 </Button>
-                                <Button variant="outline" size="icon" onClick={() => toast("More options menu")}>
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
+                                <div className="relative" ref={dropdownRef}>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => setShowMoreOptions(!showMoreOptions)}
+                                    >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+
+                                    {/* Dropdown Menu */}
+                                    {showMoreOptions && (
+                                        <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
+                                            <button
+                                                onClick={handleOpenEditModal}
+                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                            >
+                                                <Pencil className="h-4 w-4 text-slate-500" />
+                                                Edit Roadmap
+                                            </button>
+                                            <button
+                                                onClick={handleDuplicateRoadmap}
+                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                            >
+                                                <Copy className="h-4 w-4 text-slate-500" />
+                                                Duplicate
+                                            </button>
+                                            <button
+                                                onClick={handleToggleVisibility}
+                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                            >
+                                                {roadmap.visibility === "public" ? (
+                                                    <>
+                                                        <EyeOff className="h-4 w-4 text-slate-500" />
+                                                        Make Private
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Eye className="h-4 w-4 text-slate-500" />
+                                                        Make Public
+                                                    </>
+                                                )}
+                                            </button>
+                                            <div className="my-1 border-t border-slate-100" />
+                                            <button
+                                                onClick={() => {
+                                                    setShowMoreOptions(false)
+                                                    setShowDeleteModal(true)
+                                                }}
+                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                                Delete Roadmap
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                                 <Button
                                     className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
                                     onClick={() => setShowAddFeature(true)}

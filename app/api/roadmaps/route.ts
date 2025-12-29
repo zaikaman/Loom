@@ -17,18 +17,18 @@ interface IndexExtendedData {
     roadmapIds: string[];
 }
 
-const INDEX_THREAD_COOKIE = "loom_index_thread";
+const INDEX_THREAD_COOKIE_PREFIX = "loom_index_thread_";
 
-// Get index thread ID from cookie
-async function getIndexThreadIdFromCookie(): Promise<string | null> {
+// Get index thread ID from cookie (user-specific)
+async function getIndexThreadIdFromCookie(userId: string): Promise<string | null> {
     const cookieStore = await cookies();
-    return cookieStore.get(INDEX_THREAD_COOKIE)?.value || null;
+    return cookieStore.get(`${INDEX_THREAD_COOKIE_PREFIX}${userId}`)?.value || null;
 }
 
-// Store index thread ID in cookie
-async function setIndexThreadIdCookie(threadId: string): Promise<void> {
+// Store index thread ID in cookie (user-specific)
+async function setIndexThreadIdCookie(userId: string, threadId: string): Promise<void> {
     const cookieStore = await cookies();
-    cookieStore.set(INDEX_THREAD_COOKIE, threadId, {
+    cookieStore.set(`${INDEX_THREAD_COOKIE_PREFIX}${userId}`, threadId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -59,7 +59,7 @@ async function createIndexThread(userId: string, token: string): Promise<ForumsT
     });
 
     console.log("[createIndexThread] Created:", thread.id);
-    await setIndexThreadIdCookie(thread.id);
+    await setIndexThreadIdCookie(userId, thread.id);
 
     return thread;
 }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         }
 
         const user = await getMe(token);
-        const indexThreadId = await getIndexThreadIdFromCookie();
+        const indexThreadId = await getIndexThreadIdFromCookie(user.id);
 
         console.log("[GET /api/roadmaps] User:", user.id, "Index thread:", indexThreadId);
 
@@ -117,7 +117,14 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ roadmaps: [] });
         }
 
+        // Verify ownership - only show roadmaps if the index thread belongs to this user
         const indexData = indexThread.extendedData as IndexExtendedData | undefined;
+        const indexOwnerId = (indexThread as unknown as { userId?: string }).userId;
+        if (indexOwnerId && indexOwnerId !== user.id) {
+            console.log("[GET /api/roadmaps] Index thread belongs to different user:", indexOwnerId);
+            return NextResponse.json({ roadmaps: [] });
+        }
+
         const roadmapIds = indexData?.roadmapIds || [];
 
         console.log("[GET /api/roadmaps] Roadmap IDs:", roadmapIds);
@@ -202,7 +209,7 @@ export async function POST(request: NextRequest) {
         console.log("[POST /api/roadmaps] Roadmap thread created:", thread.id);
 
         // Get or create the index thread
-        let indexThreadId = await getIndexThreadIdFromCookie();
+        let indexThreadId = await getIndexThreadIdFromCookie(user.id);
         let currentIds: string[] = [];
 
         if (!indexThreadId) {
