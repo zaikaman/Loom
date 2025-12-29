@@ -22,7 +22,8 @@ import {
     GithubIcon,
     LinkSquare02Icon,
     BookOpen01Icon,
-    Link01Icon
+    Link01Icon,
+    SparklesIcon
 } from "@hugeicons/core-free-icons"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -130,6 +131,10 @@ export default function RoadmapDetailPage() {
             website: ""
         }
     })
+
+    // Feature deletion state
+    const [featureToDelete, setFeatureToDelete] = useState<string | null>(null)
+    const [isDeletingFeature, setIsDeletingFeature] = useState(false)
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -544,6 +549,33 @@ export default function RoadmapDetailPage() {
         }
     }
 
+    const handleDeleteFeature = async () => {
+        if (!featureToDelete) return
+
+        setIsDeletingFeature(true)
+
+        try {
+            const res = await fetch(`/api/roadmaps/${roadmapId}/features/${featureToDelete}`, {
+                method: "DELETE"
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to delete feature")
+            }
+
+            setFeatures(prev => prev.filter(f => f.id !== featureToDelete))
+            toast.success("Feature deleted successfully")
+            setFeatureToDelete(null)
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to delete feature"
+            toast.error(message)
+        } finally {
+            setIsDeletingFeature(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -596,9 +628,50 @@ export default function RoadmapDetailPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Description</label>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-medium">Description</label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={async () => {
+                                            if (!newFeature.title) {
+                                                toast.error("Please enter a title first");
+                                                return;
+                                            }
+
+                                            // Set loading state if I had one for this specific action, 
+                                            // or just use a toast promise which is cleaner
+                                            const promise = fetch("/api/ai/expand", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ title: newFeature.title }),
+                                            }).then(async (res) => {
+                                                if (!res.ok) throw new Error("Failed to generate");
+                                                const data = await res.json();
+                                                setNewFeature(prev => ({
+                                                    ...prev,
+                                                    description: prev.description
+                                                        ? prev.description + "\n\n" + data.spec
+                                                        : data.spec
+                                                }));
+                                                return data;
+                                            });
+
+                                            toast.promise(promise, {
+                                                loading: "Generating spec with AI...",
+                                                success: "Spec generated!",
+                                                error: "Failed to generate spec",
+                                            });
+                                        }}
+                                        className="h-7 text-xs gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+                                    >
+                                        <HugeiconsIcon icon={SparklesIcon} className="h-3.5 w-3.5" />
+                                        Magic Expand
+                                    </Button>
+                                </div>
                                 <textarea
-                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono"
                                     placeholder="Describe this feature..."
                                     value={newFeature.description}
                                     onChange={(e) => setNewFeature(prev => ({ ...prev, description: e.target.value }))}
@@ -782,6 +855,45 @@ export default function RoadmapDetailPage() {
                                 </Button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Feature Delete Confirmation Modal */}
+            {featureToDelete && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+                        <div className="p-6">
+                            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100">
+                                <HugeiconsIcon icon={Delete02Icon} className="h-6 w-6 text-red-600" />
+                            </div>
+                            <h2 className="text-lg font-semibold text-center mb-2">Delete Feature</h2>
+                            <p className="text-sm text-slate-500 text-center mb-6">
+                                Are you sure you want to delete this feature?
+                                This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => setFeatureToDelete(null)}
+                                    disabled={isDeletingFeature}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={handleDeleteFeature}
+                                    disabled={isDeletingFeature}
+                                >
+                                    {isDeletingFeature ? (
+                                        <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                                    ) : (
+                                        "Delete"
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1130,10 +1242,21 @@ export default function RoadmapDetailPage() {
                                                     >
                                                         <HugeiconsIcon icon={ThumbsUpIcon} className={`h-4 w-4 mr-1 ${feature.hasUpvoted ? 'fill-current' : ''}`} /> {feature.votes}
                                                     </Button>
+
+                                                    {(isOwner || userRole === "editor") && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="text-slate-400 hover:text-red-600"
+                                                            onClick={() => setFeatureToDelete(feature.id)}
+                                                        >
+                                                            <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </div>
 
-                                            <p className="text-slate-600 mb-4">{feature.description}</p>
+                                            <p className="text-slate-600 mb-4 whitespace-pre-wrap">{feature.description}</p>
 
                                             {/* Threaded Updates */}
                                             {feature.updates && feature.updates.length > 0 && (
