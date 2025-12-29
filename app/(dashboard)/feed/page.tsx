@@ -157,13 +157,20 @@ export default function FeedPage() {
             {/* Feed */}
             <div className="space-y-4">
                 {roadmaps.map((roadmap) => (
-                    <Link key={roadmap.id} href={`/roadmaps/${roadmap.id}`}>
-                        <Card className="hover:shadow-md transition-shadow cursor-pointer border-slate-200 hover:border-slate-300">
-                            <CardContent className="p-6">
-                                {/* Author & Time */}
-                                <div className="flex items-center gap-2 mb-3">
-                                    <div className="mr-3">
-                                        <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
+                    <Card
+                        key={roadmap.id}
+                        className="hover:shadow-md transition-shadow cursor-pointer border-slate-200 hover:border-slate-300"
+                        onClick={() => window.location.href = `/roadmaps/${roadmap.id}`}
+                    >
+                        <CardContent className="p-6">
+                            {/* Author & Time */}
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="mr-3">
+                                    <Link
+                                        href={`/u/${roadmap.author?.username}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-slate-200 transition-all">
                                             {roadmap.author?.avatarUrl ? (
                                                 <img
                                                     src={roadmap.author.avatarUrl}
@@ -176,47 +183,53 @@ export default function FeedPage() {
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
+                                    </Link>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <Link
+                                        href={`/u/${roadmap.author?.username}`}
+                                        className="hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         <span className="text-sm font-medium text-[#191a23]">
                                             {roadmap.author?.username || "Anonymous"}
                                         </span>
-                                        <span className="text-slate-400 mx-2">·</span>
-                                        <span className="text-sm text-slate-500">
-                                            {formatDate(roadmap.createdAt)}
-                                        </span>
-                                    </div>
-                                    <StatusBadge status={roadmap.status} />
+                                    </Link>
+                                    <span className="text-slate-400 mx-2">·</span>
+                                    <span className="text-sm text-slate-500">
+                                        {formatDate(roadmap.createdAt)}
+                                    </span>
                                 </div>
+                                <StatusBadge status={roadmap.status} />
+                            </div>
 
-                                {/* Title */}
-                                <h2 className="text-lg font-semibold text-[#191a23] mb-2 group-hover:underline">
-                                    {roadmap.title}
-                                </h2>
+                            {/* Title */}
+                            <h2 className="text-lg font-semibold text-[#191a23] mb-2 group-hover:underline">
+                                {roadmap.title}
+                            </h2>
 
-                                {/* Description */}
-                                <p className="text-slate-600 text-sm mb-4 line-clamp-2">
-                                    {roadmap.description || "No description provided"}
-                                </p>
+                            {/* Description */}
+                            <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+                                {roadmap.description || "No description provided"}
+                            </p>
 
-                                {/* Stats */}
-                                <div className="flex items-center gap-6 text-sm">
-                                    <div className="flex items-center gap-1.5 text-slate-500">
-                                        <MapIcon className="h-4 w-4" />
-                                        <span>{roadmap.featureCount} features</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-slate-500">
-                                        <ThumbsUp className="h-4 w-4" />
-                                        <span>{roadmap.totalUpvotes} upvotes</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-slate-500 ml-auto">
-                                        <span className="text-xs">View roadmap</span>
-                                        <ChevronRight className="h-4 w-4" />
-                                    </div>
+                            {/* Stats */}
+                            <div className="flex items-center gap-6 text-sm">
+                                <div className="flex items-center gap-1.5 text-slate-500">
+                                    <MapIcon className="h-4 w-4" />
+                                    <span>{roadmap.featureCount} features</span>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                <div className="flex items-center gap-1.5 text-slate-500">
+                                    <ThumbsUp className="h-4 w-4" />
+                                    <span>{roadmap.totalUpvotes} upvotes</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-slate-500 ml-auto">
+                                    <span className="text-xs">View roadmap</span>
+                                    <ChevronRight className="h-4 w-4" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
         </div>

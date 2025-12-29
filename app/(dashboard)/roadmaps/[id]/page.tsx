@@ -848,22 +848,26 @@ export default function RoadmapDetailPage() {
                                     {roadmap.author && (
                                         <>
                                             <div className="flex items-center gap-2">
-                                                <div className="h-5 w-5 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
-                                                    {roadmap.author.avatarUrl ? (
-                                                        <img
-                                                            src={roadmap.author.avatarUrl}
-                                                            alt={roadmap.author.username}
-                                                            className="h-full w-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full w-full flex items-center justify-center bg-slate-200">
-                                                            <span className="text-[10px] font-bold text-slate-500">
-                                                                {roadmap.author.username[0]?.toUpperCase()}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <span className="font-medium text-slate-700">{roadmap.author.username}</span>
+                                                <Link href={`/u/${roadmap.author.username}`}>
+                                                    <div className="h-5 w-5 rounded-full overflow-hidden border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-slate-200 transition-all">
+                                                        {roadmap.author.avatarUrl ? (
+                                                            <img
+                                                                src={roadmap.author.avatarUrl}
+                                                                alt={roadmap.author.username}
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <div className="h-full w-full flex items-center justify-center bg-slate-200">
+                                                                <span className="text-[10px] font-bold text-slate-500">
+                                                                    {roadmap.author.username[0]?.toUpperCase()}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </Link>
+                                                <Link href={`/u/${roadmap.author.username}`} className="hover:underline">
+                                                    <span className="font-medium text-slate-700">{roadmap.author.username}</span>
+                                                </Link>
                                             </div>
                                             <span className="text-slate-300">|</span>
                                         </>
@@ -1179,16 +1183,20 @@ export default function RoadmapDetailPage() {
                                                                     <div className="space-y-3">
                                                                         {(featureComments[feature.id] || []).map((comment) => (
                                                                             <div key={comment.id} className="flex gap-3">
-                                                                                <Avatar
-                                                                                    src={comment.avatarUrl}
-                                                                                    className="h-8 w-8"
-                                                                                    fallback={(comment.username || "U")[0]}
-                                                                                />
+                                                                                <Link href={`/u/${comment.username}`}>
+                                                                                    <Avatar
+                                                                                        src={comment.avatarUrl}
+                                                                                        className="h-8 w-8 hover:ring-2 hover:ring-slate-200 transition-all"
+                                                                                        fallback={(comment.username || "U")[0]}
+                                                                                    />
+                                                                                </Link>
                                                                                 <div className="flex-1">
                                                                                     <div className="flex items-center gap-2 mb-1">
-                                                                                        <span className="text-sm font-medium text-slate-900">
-                                                                                            {comment.username || "User"}
-                                                                                        </span>
+                                                                                        <Link href={`/u/${comment.username}`} className="hover:underline">
+                                                                                            <span className="text-sm font-medium text-slate-900">
+                                                                                                {comment.username || "User"}
+                                                                                            </span>
+                                                                                        </Link>
                                                                                         <span className="text-xs text-slate-400">
                                                                                             {new Date(comment.createdAt).toLocaleDateString()}
                                                                                         </span>
