@@ -15,6 +15,7 @@ interface Roadmap {
     visibility: "public" | "private"
     lastUpdated: string
     featureCount: number
+    team?: { userId: string }[]
 }
 
 interface User {
@@ -74,9 +75,9 @@ export default function DashboardPage() {
         },
         {
             title: "Team Members",
-            value: "1",
+            value: new Set(roadmaps.flatMap(r => r.team?.map(m => m.userId) || [])).size.toString(),
             icon: Users,
-            change: "You"
+            change: "Across roadmaps"
         },
     ]
 

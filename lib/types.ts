@@ -30,6 +30,7 @@ export interface RoadmapExtendedData {
     visibility: "public" | "private";
     description?: string;
     ownerId?: string;
+    followers?: string[];
     team?: TeamMember[];
     features?: Feature[];
 }

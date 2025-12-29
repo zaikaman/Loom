@@ -3,14 +3,7 @@ import { forumsRequest, ForumsThread, getMe, getThread } from "@/lib/forums";
 import { getSession } from "@/lib/session";
 import { getUserIndexThreadId, updateUserThreadsMap } from "@/lib/cloudinary";
 
-interface RoadmapExtendedData {
-    type: "roadmap";
-    status: "planned" | "in-progress" | "shipped";
-    visibility: "public" | "private";
-    description?: string;
-    followers?: string[];
-    ownerId?: string;
-}
+import { RoadmapExtendedData } from "@/lib/types";
 
 interface IndexExtendedData {
     type: "loom-index";
@@ -118,7 +111,7 @@ export async function GET(request: NextRequest) {
             roadmapIds.map(async (id) => {
                 try {
                     const thread = await getThread(id);
-                    const extendedData = thread.extendedData as RoadmapExtendedData | undefined;
+                    const extendedData = thread.extendedData as unknown as RoadmapExtendedData | undefined;
                     return {
                         id: thread.id,
                         title: thread.title,
@@ -126,7 +119,8 @@ export async function GET(request: NextRequest) {
                         status: extendedData?.status || "planned",
                         visibility: extendedData?.visibility || "public",
                         lastUpdated: thread.createdAt,
-                        featureCount: 0,
+                        featureCount: extendedData?.features?.length || 0,
+                        team: extendedData?.team || [],
                     };
                 } catch {
                     return null;
