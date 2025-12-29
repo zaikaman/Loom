@@ -275,3 +275,85 @@ export async function deleteUser(id: string, token?: string) {
         token,
     });
 }
+
+// --- Private Messages (Chat) ---
+
+export interface ForumsPrivateMessage {
+    id: string;
+    title?: string;
+    body: string;
+    senderId: string;
+    recipientId: string;
+    read: boolean;
+    extendedData?: Record<string, unknown>;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export async function getPrivateMessages(userId?: string, token?: string) {
+    let path = "/api/v1/private-messages?limit=50&filter=newest";
+    if (userId) path += `&userId=${userId}`;
+
+    return forumsRequest<{ privateMessages: ForumsPrivateMessage[] }>({
+        method: "GET",
+        path,
+        token,
+    });
+}
+
+export async function getPrivateMessage(id: string, token?: string) {
+    return forumsRequest<ForumsPrivateMessage>({
+        method: "GET",
+        path: `/api/v1/private-message/${id}`,
+        token,
+    });
+}
+
+export async function sendPrivateMessage(
+    data: {
+        recipientId: string;
+        body: string;
+        title?: string;
+        extendedData?: Record<string, unknown>;
+    },
+    token?: string
+) {
+    return forumsRequest<ForumsPrivateMessage>({
+        method: "POST",
+        path: "/api/v1/private-message",
+        body: data,
+        token,
+    });
+}
+
+export async function replyToPrivateMessage(
+    parentId: string,
+    data: {
+        body: string;
+        extendedData?: Record<string, unknown>;
+    },
+    token?: string
+) {
+    return forumsRequest<ForumsPrivateMessage>({
+        method: "POST",
+        path: `/api/v1/private-message/${parentId}`,
+        body: data,
+        token,
+    });
+}
+
+export async function updatePrivateMessage(
+    id: string,
+    data: {
+        read?: boolean;
+        extendedData?: Record<string, unknown>;
+    },
+    token?: string
+) {
+    return forumsRequest<ForumsPrivateMessage>({
+        method: "PATCH",
+        path: `/api/v1/private-message/${id}`,
+        body: data,
+        token,
+    });
+}

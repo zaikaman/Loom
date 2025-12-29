@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
-import { searchUsers, getThread, getUser, ForumsUser, ForumsThread } from "@/lib/forums"
+import { cookies } from "next/headers"
+import { searchUsers, getThread, getUser, getMe, ForumsUser, ForumsThread } from "@/lib/forums"
 import { getFeedIndexFromCloudinary } from "@/lib/cloudinary"
 import { RoadmapCard } from "@/components/RoadmapCard"
 import { Button } from "@/components/ui/button"
@@ -102,6 +103,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { username } = await params
     const user = await getProfile(username)
 
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
+    let currentUserId = null
+
+    if (token) {
+        try {
+            const me = await getMe(token)
+            currentUserId = me.id
+        } catch { }
+    }
+
     if (!user) {
         notFound()
     }
@@ -146,6 +158,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <MapIcon className="h-4 w-4" />
                                 <span>{roadmaps.length} Public Roadmaps</span>
                             </div>
+
+                            {currentUserId !== user.id && (
+                                <Link href={`/chat/${user.id}`}>
+                                    <Button size="sm" variant="outline" className="ml-4 gap-2">
+                                        <Mail className="h-4 w-4" />
+                                        Message
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
 
                         {/* Social Links */}

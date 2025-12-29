@@ -10,6 +10,7 @@ import {
     User,
     Settings,
     Compass,
+    MessageCircle,
 } from "lucide-react"
 import LogoIcon from "@/app/assets/icons/logo-icon.svg"
 import { cn } from "@/lib/utils"
@@ -20,6 +21,7 @@ const navItems = [
     { name: "Overview", href: "/dashboard", icon: Home },
     { name: "Discover", href: "/feed", icon: Compass },
     { name: "My Roadmaps", href: "/roadmaps", icon: List },
+    { name: "Chat", href: "/chat", icon: MessageCircle },
     { name: "New Roadmap", href: "/roadmaps/new", icon: PlusCircle },
     { name: "Profile", href: "/profile", icon: User },
     { name: "Settings", href: "/settings", icon: Settings },
