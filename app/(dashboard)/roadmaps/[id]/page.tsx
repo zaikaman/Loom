@@ -442,6 +442,8 @@ export default function RoadmapDetailPage() {
         setShowMoreOptions(false)
 
         try {
+            toast.info("Duplicating roadmap...")
+
             // Create a new roadmap with the same data
             const res = await fetch("/api/roadmaps", {
                 method: "POST",
@@ -450,7 +452,8 @@ export default function RoadmapDetailPage() {
                     title: `${roadmap?.title} (Copy)`,
                     description: roadmap?.description || "",
                     status: "planned",
-                    visibility: roadmap?.visibility || "private"
+                    visibility: roadmap?.visibility || "private",
+                    links: roadmap?.links
                 })
             })
 
@@ -460,8 +463,29 @@ export default function RoadmapDetailPage() {
                 throw new Error(data.error || "Failed to duplicate roadmap")
             }
 
-            toast.success("Roadmap duplicated! Redirecting...")
-            router.push(`/roadmaps/${data.roadmap.id}`)
+            const newRoadmapId = data.roadmap.id
+
+            // Copy features to the new roadmap
+            if (features.length > 0) {
+                for (const feature of features) {
+                    try {
+                        await fetch(`/api/roadmaps/${newRoadmapId}/features`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                title: feature.title,
+                                description: feature.description,
+                                status: feature.status
+                            })
+                        })
+                    } catch (featureErr) {
+                        console.error("Failed to copy feature:", feature.title, featureErr)
+                    }
+                }
+            }
+
+            toast.success("Roadmap duplicated with all features! Redirecting...")
+            router.push(`/roadmaps/${newRoadmapId}`)
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to duplicate roadmap"
             toast.error(message)
