@@ -70,7 +70,7 @@ A **premium Next.js 16 frontend** with:
 
 Loom includes a **built-in messaging system**:
 - Real-time direct messaging between users
-- User search and discovery
+- User profile discovery
 - Notification sounds for new messages
 - Seamless integration with the roadmap workflow
 
@@ -236,18 +236,18 @@ Full-screen chat interface:
 │  └───────────────┘                                          │
 │          │                                                  │
 │          ▼                                                  │
-│  ┌───────────────┐    ┌───────────────┐                     │
-│  │ Roadmap Thread│    │ Roadmap Thread│                     │
-│  │  (type=roadmap)│   │  (type=roadmap)│                    │
-│  │               │    │               │                     │
-│  │ extendedData: │    │ extendedData: │                     │
-│  │ - status      │    │ - status      │                     │
-│  │ - visibility  │    │ - visibility  │                     │
-│  │ - team[]      │    │ - team[]      │                     │
-│  │ - features[]  │    │ - features[]  │                     │
-│  │ - aiAnalysis  │    │ - aiAnalysis  │                     │
-│  │ - links       │    │ - links       │                     │
-│  └───────────────┘    └───────────────┘                     │
+│  ┌───────────────┐                                          │
+│  │ Roadmap Thread│                                          │
+│  │ (type=roadmap)│                                          │
+│  │               │                                          │
+│  │ extendedData: │                                          │
+│  │ - status      │                                          │
+│  │ - visibility  │                                          │
+│  │ - team[]      │                                          │
+│  │ - features[]  │                                          │
+│  │ - aiAnalysis  │                                          │
+│  │ - links       │                                          │
+│  └───────────────┘                                          │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -450,7 +450,7 @@ Loom/
 
 ## 👨‍💻 Author
 
-Built with ❤️ for the **Foru.ms + v0 by Vercel Hackathon**
+Built with ❤️ by zaikaman for the **Foru.ms + v0 by Vercel Hackathon**
 
 ---
 
