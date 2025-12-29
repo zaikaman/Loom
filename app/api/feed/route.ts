@@ -144,7 +144,8 @@ export async function GET() {
             })
         );
 
-        const validRoadmaps = roadmaps.filter((r) => r !== null);
+        // Filter out null results AND private roadmaps (in case they were made private after publishing)
+        const validRoadmaps = roadmaps.filter((r): r is NonNullable<typeof r> => r !== null && r.visibility === "public");
 
         // Sort by most recent
         validRoadmaps.sort((a, b) =>
