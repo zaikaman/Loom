@@ -6,7 +6,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
 
 export default function LoginPage() {
@@ -84,7 +85,7 @@ export default function LoginPage() {
                             className="w-full bg-[#191a23] hover:bg-[#2a2b35] text-white"
                             disabled={isLoading}
                         >
-                            {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...</> : "Sign In"}
+                            {isLoading ? <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Signing in...</> : "Sign In"}
                         </Button>
                         <p className="text-sm text-muted-foreground text-center">
                             Don&apos;t have an account?{" "}

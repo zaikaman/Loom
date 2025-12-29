@@ -6,20 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    Shield,
-    Key,
-    Download,
-    AlertTriangle,
-    Loader2,
-    Eye,
-    EyeOff,
-    Check,
-    Copy,
-    LogOut,
-    Trash2,
-    FileJson
-} from "lucide-react"
+    SecurityCheckIcon,
+    Key01Icon,
+    Download01Icon,
+    Alert02Icon,
+    Loading03Icon,
+    ViewIcon,
+    ViewOffIcon,
+    CheckmarkCircle02Icon,
+    Copy01Icon,
+    Logout02Icon,
+    Delete02Icon,
+    File01Icon
+} from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
 
 interface User {
@@ -240,7 +241,7 @@ export default function SettingsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -257,7 +258,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Shield className="h-5 w-5 text-muted-foreground" /> Account Information
+                            <HugeiconsIcon icon={SecurityCheckIcon} className="h-5 w-5 text-muted-foreground" /> Account Information
                         </CardTitle>
                         <CardDescription>View your account details and unique identifiers.</CardDescription>
                     </CardHeader>
@@ -277,7 +278,7 @@ export default function SettingsPage() {
                             <div className="flex items-center gap-2">
                                 <Input value={user?.id || ""} disabled className="bg-slate-50 font-mono text-xs" />
                                 <Button variant="outline" size="icon" onClick={handleCopyUserId} title="Copy User ID">
-                                    <Copy className="h-4 w-4" />
+                                    <HugeiconsIcon icon={Copy01Icon} className="h-4 w-4" />
                                 </Button>
                             </div>
                             <p className="text-xs text-muted-foreground">Your unique identifier for API integrations.</p>
@@ -289,7 +290,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Key className="h-5 w-5 text-muted-foreground" /> Security
+                            <HugeiconsIcon icon={Key01Icon} className="h-5 w-5 text-muted-foreground" /> Security
                         </CardTitle>
                         <CardDescription>Manage your password and session security.</CardDescription>
                     </CardHeader>
@@ -310,7 +311,7 @@ export default function SettingsPage() {
                                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                                 >
-                                    {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    {showCurrentPassword ? <HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4" /> : <HugeiconsIcon icon={ViewIcon} className="h-4 w-4" />}
                                 </Button>
                             </div>
                         </div>
@@ -330,7 +331,7 @@ export default function SettingsPage() {
                                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                                     onClick={() => setShowNewPassword(!showNewPassword)}
                                 >
-                                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    {showNewPassword ? <HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4" /> : <HugeiconsIcon icon={ViewIcon} className="h-4 w-4" />}
                                 </Button>
                             </div>
                         </div>
@@ -350,7 +351,7 @@ export default function SettingsPage() {
                                 <p className="text-xs text-muted-foreground">Sign out of this browser session.</p>
                             </div>
                             <Button variant="outline" onClick={handleLogoutAllDevices} className="gap-2">
-                                <LogOut className="h-4 w-4" /> Sign Out
+                                <HugeiconsIcon icon={Logout02Icon} className="h-4 w-4" /> Sign Out
                             </Button>
                         </div>
                     </CardContent>
@@ -361,9 +362,9 @@ export default function SettingsPage() {
                             disabled={isChangingPassword || !currentPassword || !newPassword || !confirmPassword}
                         >
                             {isChangingPassword ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
+                                <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
                             ) : (
-                                <><Check className="mr-2 h-4 w-4" /> Update Password</>
+                                <><HugeiconsIcon icon={CheckmarkCircle02Icon} className="mr-2 h-4 w-4" /> Update Password</>
                             )}
                         </Button>
                     </CardFooter>
@@ -373,7 +374,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Eye className="h-5 w-5 text-muted-foreground" /> Privacy
+                            <HugeiconsIcon icon={ViewIcon} className="h-5 w-5 text-muted-foreground" /> Privacy
                         </CardTitle>
                         <CardDescription>Control the default visibility of your roadmaps.</CardDescription>
                     </CardHeader>
@@ -405,7 +406,7 @@ export default function SettingsPage() {
                             disabled={isSavingPrivacy}
                         >
                             {isSavingPrivacy ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                                <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
                             ) : (
                                 "Save Privacy Settings"
                             )}
@@ -417,14 +418,14 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Download className="h-5 w-5 text-muted-foreground" /> Data Export
+                            <HugeiconsIcon icon={Download01Icon} className="h-5 w-5 text-muted-foreground" /> Data Export
                         </CardTitle>
                         <CardDescription>Download a copy of all your roadmap data.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between space-x-4 p-4 border border-border rounded-lg bg-secondary/10">
                             <div className="flex items-center gap-3">
-                                <FileJson className="h-8 w-8 text-muted-foreground" />
+                                <HugeiconsIcon icon={File01Icon} className="h-8 w-8 text-muted-foreground" />
                                 <div>
                                     <p className="text-sm font-medium">Export All Data</p>
                                     <p className="text-xs text-muted-foreground">
@@ -434,9 +435,9 @@ export default function SettingsPage() {
                             </div>
                             <Button variant="outline" onClick={handleExportData} disabled={isExporting} className="gap-2">
                                 {isExporting ? (
-                                    <><Loader2 className="h-4 w-4 animate-spin" /> Exporting...</>
+                                    <><HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" /> Exporting...</>
                                 ) : (
-                                    <><Download className="h-4 w-4" /> Export</>
+                                    <><HugeiconsIcon icon={Download01Icon} className="h-4 w-4" /> Export</>
                                 )}
                             </Button>
                         </div>
@@ -447,7 +448,7 @@ export default function SettingsPage() {
                 <Card className="border-red-200">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-red-600">
-                            <AlertTriangle className="h-5 w-5" /> Danger Zone
+                            <HugeiconsIcon icon={Alert02Icon} className="h-5 w-5" /> Danger Zone
                         </CardTitle>
                         <CardDescription>Irreversible and destructive actions.</CardDescription>
                     </CardHeader>
@@ -465,13 +466,13 @@ export default function SettingsPage() {
                                     onClick={() => setShowDeleteConfirm(true)}
                                     className="gap-2 bg-red-600 hover:bg-red-700"
                                 >
-                                    <Trash2 className="h-4 w-4" /> Delete Account
+                                    <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" /> Delete Account
                                 </Button>
                             </div>
                         ) : (
                             <div className="p-4 border border-red-300 rounded-lg bg-red-50 space-y-4">
                                 <div className="flex items-start gap-3">
-                                    <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+                                    <HugeiconsIcon icon={Alert02Icon} className="h-5 w-5 text-red-600 mt-0.5" />
                                     <div>
                                         <p className="text-sm font-medium text-red-600">Are you absolutely sure?</p>
                                         <p className="text-xs text-muted-foreground mt-1">
@@ -508,7 +509,7 @@ export default function SettingsPage() {
                                         className="bg-red-600 hover:bg-red-700"
                                     >
                                         {isDeleting ? (
-                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                                            <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
                                         ) : (
                                             "I understand, delete my account"
                                         )}

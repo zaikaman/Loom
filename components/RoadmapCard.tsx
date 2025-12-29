@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { ArrowRight, Calendar } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon, Calendar03Icon } from "@hugeicons/core-free-icons"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MiniTimeline } from "@/components/MiniTimeline"
@@ -77,12 +78,12 @@ export function RoadmapCard({
             <CardFooter className="border-t border-border bg-secondary/30 p-4">
                 <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                        <HugeiconsIcon icon={Calendar03Icon} className="h-3.5 w-3.5 flex-shrink-0" />
                         <span>Created {formatDate(lastUpdated)}</span>
                     </div>
                     <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-background" asChild>
                         <Link href={`/roadmaps/${id}`}>
-                            View <ArrowRight className="ml-2 h-3 w-3" />
+                            View <HugeiconsIcon icon={ArrowRight01Icon} className="ml-2 h-3 w-3" />
                         </Link>
                     </Button>
                 </div>

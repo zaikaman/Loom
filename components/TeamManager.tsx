@@ -1,7 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, Plus, X, Loader2, Crown, Edit3, Eye, UserMinus } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import {
+    UserGroup02Icon,
+    PlusSignIcon,
+    Cancel01Icon,
+    Loading03Icon,
+    ChampionIcon,
+    PencilEdit01Icon,
+    ViewIcon,
+    UserRemove01Icon
+} from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
@@ -128,9 +138,9 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
 
     const getRoleIcon = (role: string) => {
         switch (role) {
-            case "owner": return <Crown className="h-3 w-3 text-amber-500" />
-            case "editor": return <Edit3 className="h-3 w-3 text-blue-500" />
-            case "viewer": return <Eye className="h-3 w-3 text-slate-400" />
+            case "owner": return <HugeiconsIcon icon={ChampionIcon} className="h-3 w-3 text-amber-500" />
+            case "editor": return <HugeiconsIcon icon={PencilEdit01Icon} className="h-3 w-3 text-blue-500" />
+            case "viewer": return <HugeiconsIcon icon={ViewIcon} className="h-3 w-3 text-slate-400" />
             default: return null
         }
     }
@@ -149,7 +159,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
                 <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-slate-500" />
+                    <HugeiconsIcon icon={UserGroup02Icon} className="h-4 w-4 text-slate-500" />
                     <span className="font-medium text-sm">Team</span>
                     <Badge variant="secondary" className="text-xs">{team.length}</Badge>
                 </div>
@@ -161,13 +171,13 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                             className="h-7 text-xs"
                             onClick={() => setShowInvite(!showInvite)}
                         >
-                            <Plus className="h-3 w-3 mr-1" />
+                            <HugeiconsIcon icon={PlusSignIcon} className="h-3 w-3 mr-1" />
                             Add
                         </Button>
                     )}
                     {onClose && (
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-                            <X className="h-4 w-4" />
+                            <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
                         </Button>
                     )}
                 </div>
@@ -185,7 +195,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                                 className="pr-8"
                             />
                             {isSearching && (
-                                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" />
+                                <HugeiconsIcon icon={Loading03Icon} className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" />
                             )}
                         </div>
 
@@ -200,7 +210,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                                     onChange={() => setInviteRole("editor")}
                                     className="h-3.5 w-3.5"
                                 />
-                                <Edit3 className="h-3 w-3 text-blue-500" />
+                                <HugeiconsIcon icon={PencilEdit01Icon} className="h-3 w-3 text-blue-500" />
                                 <span>Editor</span>
                             </label>
                             <label className="flex items-center gap-1.5 cursor-pointer">
@@ -211,7 +221,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                                     onChange={() => setInviteRole("viewer")}
                                     className="h-3.5 w-3.5"
                                 />
-                                <Eye className="h-3 w-3 text-slate-400" />
+                                <HugeiconsIcon icon={ViewIcon} className="h-3 w-3 text-slate-400" />
                                 <span>Viewer</span>
                             </label>
                         </div>
@@ -244,7 +254,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                                             disabled={isInviting}
                                         >
                                             {isInviting ? (
-                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                                <HugeiconsIcon icon={Loading03Icon} className="h-3 w-3 animate-spin" />
                                             ) : (
                                                 "Add"
                                             )}
@@ -267,7 +277,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
             <div className="divide-y divide-slate-100">
                 {isLoading ? (
                     <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                        <HugeiconsIcon icon={Loading03Icon} className="h-5 w-5 animate-spin text-slate-400" />
                     </div>
                 ) : team.length === 0 ? (
                     <div className="py-8 text-center text-sm text-slate-500">
@@ -305,7 +315,7 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                                     className="h-7 w-7 text-slate-400 hover:text-red-500"
                                     onClick={() => handleRemoveMember(member.userId, member.username)}
                                 >
-                                    <UserMinus className="h-4 w-4" />
+                                    <HugeiconsIcon icon={UserRemove01Icon} className="h-4 w-4" />
                                 </Button>
                             )}
                         </div>

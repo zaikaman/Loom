@@ -4,7 +4,19 @@ import { searchUsers, getThread, getUser, getMe, ForumsUser, ForumsThread } from
 import { getFeedIndexFromCloudinary } from "@/lib/cloudinary"
 import { RoadmapCard } from "@/components/RoadmapCard"
 import { Button } from "@/components/ui/button"
-import { MapIcon, Calendar, User, Mail, Github, Linkedin, Globe, Twitter, Instagram, Facebook } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import {
+    Location01Icon,
+    Calendar03Icon,
+    UserIcon,
+    Mail01Icon,
+    GithubIcon,
+    Linkedin02Icon,
+    Globe02Icon,
+    TwitterIcon,
+    InstagramIcon,
+    Facebook02Icon
+} from "@hugeicons/core-free-icons"
 import Link from "next/link"
 
 interface ProfilePageProps {
@@ -135,7 +147,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             />
                         ) : (
                             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#191a23] to-slate-600">
-                                <User className="h-10 w-10 text-white" />
+                                <HugeiconsIcon icon={UserIcon} className="h-10 w-10 text-white" />
                             </div>
                         )}
                     </div>
@@ -155,14 +167,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                         <div className="flex items-center gap-6 mt-4 text-sm text-slate-500">
                             {/* Joined Date would be nice if available in API, skipping for now as it wasn't in type */}
                             <div className="flex items-center gap-2">
-                                <MapIcon className="h-4 w-4" />
+                                <HugeiconsIcon icon={Location01Icon} className="h-4 w-4" />
                                 <span>{roadmaps.length} Public Roadmaps</span>
                             </div>
 
                             {currentUserId !== user.id && (
                                 <Link href={`/chat/${user.id}`}>
                                     <Button size="sm" variant="outline" className="ml-4 gap-2">
-                                        <Mail className="h-4 w-4" />
+                                        <HugeiconsIcon icon={Mail01Icon} className="h-4 w-4" />
                                         Message
                                     </Button>
                                 </Link>
@@ -183,7 +195,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-sm"
                                         >
-                                            <Github className="h-4 w-4" />
+                                            <HugeiconsIcon icon={GithubIcon} className="h-4 w-4" />
                                             GitHub
                                         </a>
                                     )}
@@ -194,7 +206,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
                                         >
-                                            <Linkedin className="h-4 w-4" />
+                                            <HugeiconsIcon icon={Linkedin02Icon} className="h-4 w-4" />
                                             LinkedIn
                                         </a>
                                     )}
@@ -205,7 +217,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm"
                                         >
-                                            <Twitter className="h-4 w-4" />
+                                            <HugeiconsIcon icon={TwitterIcon} className="h-4 w-4" />
                                             X
                                         </a>
                                     )}
@@ -216,7 +228,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-100 text-pink-700 hover:bg-pink-200 transition-colors text-sm"
                                         >
-                                            <Instagram className="h-4 w-4" />
+                                            <HugeiconsIcon icon={InstagramIcon} className="h-4 w-4" />
                                             Instagram
                                         </a>
                                     )}
@@ -227,7 +239,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-sm"
                                         >
-                                            <Facebook className="h-4 w-4" />
+                                            <HugeiconsIcon icon={Facebook02Icon} className="h-4 w-4" />
                                             Facebook
                                         </a>
                                     )}
@@ -238,7 +250,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors text-sm"
                                         >
-                                            <Globe className="h-4 w-4" />
+                                            <HugeiconsIcon icon={Globe02Icon} className="h-4 w-4" />
                                             Website
                                         </a>
                                     )}
@@ -252,14 +264,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {/* Roadmaps Grid */}
             <div className="mb-8">
                 <h2 className="text-xl font-bold text-[#191a23] mb-6 flex items-center gap-2">
-                    <MapIcon className="h-5 w-5" />
+                    <HugeiconsIcon icon={Location01Icon} className="h-5 w-5" />
                     Public Roadmaps
                 </h2>
 
                 {roadmaps.length === 0 ? (
                     <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-12 text-center">
                         <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                            <MapIcon className="h-8 w-8 text-slate-400" />
+                            <HugeiconsIcon icon={Location01Icon} className="h-8 w-8 text-slate-400" />
                         </div>
                         <h3 className="text-lg font-medium text-[#191a23] mb-1">No public roadmaps</h3>
                         <p className="text-slate-500">

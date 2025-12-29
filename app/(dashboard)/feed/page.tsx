@@ -1,17 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    ChevronRight,
-    Loader2,
-    MapIcon,
-    ThumbsUp,
-    MessageSquare,
-    Calendar,
-    User,
-    TrendingUp,
-    RefreshCw
-} from "lucide-react"
+    ArrowRight01Icon,
+    Loading03Icon,
+    Location01Icon,
+    ThumbsUpIcon,
+    UserIcon,
+    ReloadIcon
+} from "@hugeicons/core-free-icons"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -92,7 +90,7 @@ export default function FeedPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -113,7 +111,7 @@ export default function FeedPage() {
                     onClick={() => fetchFeed(true)}
                     disabled={isRefreshing}
                 >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <HugeiconsIcon icon={ReloadIcon} className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
                     Refresh
                 </Button>
             </div>
@@ -136,7 +134,7 @@ export default function FeedPage() {
                 <Card className="text-center py-16">
                     <CardContent className="flex flex-col items-center gap-4">
                         <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                            <MapIcon className="h-8 w-8 text-slate-400" />
+                            <HugeiconsIcon icon={Location01Icon} className="h-8 w-8 text-slate-400" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-[#191a23]">No public roadmaps yet</h3>
@@ -146,7 +144,7 @@ export default function FeedPage() {
                         </div>
                         <Link href="/roadmaps">
                             <Button variant="outline">
-                                <MapIcon className="h-4 w-4 mr-2" />
+                                <HugeiconsIcon icon={Location01Icon} className="h-4 w-4 mr-2" />
                                 View Your Roadmaps
                             </Button>
                         </Link>
@@ -179,7 +177,7 @@ export default function FeedPage() {
                                                 />
                                             ) : (
                                                 <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#191a23] to-slate-600">
-                                                    <User className="h-4 w-4 text-white" />
+                                                    <HugeiconsIcon icon={UserIcon} className="h-4 w-4 text-white" />
                                                 </div>
                                             )}
                                         </div>
@@ -216,16 +214,16 @@ export default function FeedPage() {
                             {/* Stats */}
                             <div className="flex items-center gap-6 text-sm">
                                 <div className="flex items-center gap-1.5 text-slate-500">
-                                    <MapIcon className="h-4 w-4" />
+                                    <HugeiconsIcon icon={Location01Icon} className="h-4 w-4" />
                                     <span>{roadmap.featureCount} features</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-slate-500">
-                                    <ThumbsUp className="h-4 w-4" />
+                                    <HugeiconsIcon icon={ThumbsUpIcon} className="h-4 w-4" />
                                     <span>{roadmap.totalUpvotes} upvotes</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-slate-500 ml-auto">
                                     <span className="text-xs">View roadmap</span>
-                                    <ChevronRight className="h-4 w-4" />
+                                    <HugeiconsIcon icon={ArrowRight01Icon} className="h-4 w-4" />
                                 </div>
                             </div>
                         </CardContent>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Filter, Loader2, LayoutGrid } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { PlusSignIcon, Search01Icon, FilterHorizontalIcon, Loading03Icon, DashboardSquare02Icon } from "@hugeicons/core-free-icons"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -68,7 +69,7 @@ export default function RoadmapsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -94,7 +95,7 @@ export default function RoadmapsPage() {
                 </div>
                 <Link href="/roadmaps/new">
                     <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                        <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
+                        <HugeiconsIcon icon={PlusSignIcon} className="mr-2 h-4 w-4" /> Create New Roadmap
                     </Button>
                 </Link>
             </div>
@@ -102,7 +103,7 @@ export default function RoadmapsPage() {
             {/* Filters & Search */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 p-1">
                 <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <HugeiconsIcon icon={Search01Icon} className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <Input
                         placeholder="Search roadmaps..."
                         className="pl-10"
@@ -118,7 +119,7 @@ export default function RoadmapsPage() {
                         className="h-9 border-dashed"
                         onClick={() => toast("Advanced filters coming soon")}
                     >
-                        <Filter className="mr-2 h-4 w-4" /> Filter
+                        <HugeiconsIcon icon={FilterHorizontalIcon} className="mr-2 h-4 w-4" /> Filter
                     </Button>
                     <Badge
                         variant={filter === "all" ? "default" : "secondary"}
@@ -154,7 +155,7 @@ export default function RoadmapsPage() {
             {/* Grid */}
             {filteredRoadmaps.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
-                    <LayoutGrid className="h-12 w-12 text-slate-300 mb-4" />
+                    <HugeiconsIcon icon={DashboardSquare02Icon} className="h-12 w-12 text-slate-300 mb-4" />
                     <h3 className="text-lg font-medium text-slate-900 mb-2">
                         {searchQuery || filter !== "all" ? "No matching roadmaps" : "No roadmaps yet"}
                     </h3>
@@ -166,7 +167,7 @@ export default function RoadmapsPage() {
                     {!searchQuery && filter === "all" && (
                         <Link href="/roadmaps/new">
                             <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                                <Plus className="mr-2 h-4 w-4" /> Create Roadmap
+                                <HugeiconsIcon icon={PlusSignIcon} className="mr-2 h-4 w-4" /> Create Roadmap
                             </Button>
                         </Link>
                     )}

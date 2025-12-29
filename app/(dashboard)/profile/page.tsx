@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { User, Mail, Camera, Loader2, Github, Linkedin, Globe, Twitter, Instagram, Facebook } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { UserIcon, Mail01Icon, Camera01Icon, Loading03Icon, GithubIcon, Linkedin02Icon, Globe02Icon, TwitterIcon, InstagramIcon, Facebook02Icon } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
 
 interface SocialLinks {
@@ -172,7 +173,7 @@ export default function ProfilePage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -207,7 +208,7 @@ export default function ProfilePage() {
                                 onChange={handleFileChange}
                             />
                             <Button variant="outline" className="w-fit" onClick={handleAvatarClick} disabled={isUploading}>
-                                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+                                {isUploading ? <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> : <HugeiconsIcon icon={Camera01Icon} className="mr-2 h-4 w-4" />}
                                 {isUploading ? "Uploading..." : "Change Avatar"}
                             </Button>
                             <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Images are optimized automatically.</p>
@@ -227,7 +228,7 @@ export default function ProfilePage() {
                                 Display Name
                             </label>
                             <div className="relative">
-                                <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={UserIcon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="displayName"
                                     placeholder="John Doe"
@@ -243,7 +244,7 @@ export default function ProfilePage() {
                                 Email Address
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={Mail01Icon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="email"
                                     type="email"
@@ -275,7 +276,7 @@ export default function ProfilePage() {
                             onClick={handleSave}
                             disabled={isSaving}
                         >
-                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
+                            {isSaving ? <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
                         </Button>
                     </div>
                 </Card>
@@ -292,7 +293,7 @@ export default function ProfilePage() {
                                 GitHub
                             </label>
                             <div className="relative">
-                                <Github className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={GithubIcon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="github"
                                     placeholder="https://github.com/username"
@@ -308,7 +309,7 @@ export default function ProfilePage() {
                                 LinkedIn
                             </label>
                             <div className="relative">
-                                <Linkedin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={Linkedin02Icon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="linkedin"
                                     placeholder="https://linkedin.com/in/username"
@@ -324,7 +325,7 @@ export default function ProfilePage() {
                                 X (Twitter)
                             </label>
                             <div className="relative">
-                                <Twitter className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={TwitterIcon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="twitter"
                                     placeholder="https://x.com/username"
@@ -340,7 +341,7 @@ export default function ProfilePage() {
                                 Instagram
                             </label>
                             <div className="relative">
-                                <Instagram className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={InstagramIcon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="instagram"
                                     placeholder="https://instagram.com/username"
@@ -356,7 +357,7 @@ export default function ProfilePage() {
                                 Facebook
                             </label>
                             <div className="relative">
-                                <Facebook className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={Facebook02Icon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="facebook"
                                     placeholder="https://facebook.com/username"
@@ -372,7 +373,7 @@ export default function ProfilePage() {
                                 Portfolio / Website
                             </label>
                             <div className="relative">
-                                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <HugeiconsIcon icon={Globe02Icon} className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="website"
                                     placeholder="https://yourwebsite.com"
@@ -389,7 +390,7 @@ export default function ProfilePage() {
                             onClick={handleSave}
                             disabled={isSaving}
                         >
-                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Links"}
+                            {isSaving ? <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Links"}
                         </Button>
                     </div>
                 </Card>

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Search, MessageCircle, MoreVertical, CheckCheck } from "lucide-react"
+import { ArrowLeft02Icon, Search01Icon, BubbleChatIcon, MoreVerticalCircle01Icon, TickDouble02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -65,7 +66,7 @@ export default function ChatPage() {
             <div className="flex flex-col space-y-4 mb-6">
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">Messages</h1>
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <HugeiconsIcon icon={Search01Icon} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                         placeholder="Search conversations..."
                         className="pl-10 bg-white"
@@ -91,7 +92,7 @@ export default function ChatPage() {
                 ) : filteredConversations.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50/50">
                         <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <MessageCircle className="h-8 w-8 text-slate-400" />
+                            <HugeiconsIcon icon={BubbleChatIcon} className="h-8 w-8 text-slate-400" />
                         </div>
                         <h3 className="text-lg font-medium text-slate-900">No messages yet</h3>
                         <p className="text-slate-500 max-w-sm mt-2">

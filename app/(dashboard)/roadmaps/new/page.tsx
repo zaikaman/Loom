@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ChevronLeft, Loader2 } from "lucide-react"
+import { ArrowLeft02Icon, Loading03Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -58,7 +59,7 @@ export default function NewRoadmapPage() {
                 href="/roadmaps"
                 className="inline-flex items-center text-sm text-slate-500 hover:text-slate-900 mb-6 transition-colors"
             >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <HugeiconsIcon icon={ArrowLeft02Icon} className="h-4 w-4 mr-1" />
                 Back to Roadmaps
             </Link>
 
@@ -145,7 +146,7 @@ export default function NewRoadmapPage() {
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
+                                <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
                             ) : (
                                 "Create Roadmap"
                             )}

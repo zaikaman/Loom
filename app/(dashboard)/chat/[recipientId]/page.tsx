@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Send, MoreVertical, Phone, Video, Info } from "lucide-react"
+import { ArrowLeft02Icon, SentIcon, MoreVerticalCircle01Icon, Call02Icon, Video01Icon, InformationCircleIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
@@ -197,7 +198,7 @@ export default function ChatDetailPage() {
                         href="/chat"
                         className="p-2 -ml-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
                     >
-                        <ArrowLeft className="h-5 w-5" />
+                        <HugeiconsIcon icon={ArrowLeft02Icon} className="h-5 w-5" />
                     </Link>
 
                     {loading ? (
@@ -229,13 +230,13 @@ export default function ChatDetailPage() {
 
                 <div className="flex items-center gap-2 text-slate-400">
                     <Button variant="ghost" size="icon" className="hover:text-slate-900">
-                        <Phone className="h-5 w-5" />
+                        <HugeiconsIcon icon={Call02Icon} className="h-5 w-5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="hover:text-slate-900">
-                        <Video className="h-5 w-5" />
+                        <HugeiconsIcon icon={Video01Icon} className="h-5 w-5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="hover:text-slate-900">
-                        <Info className="h-5 w-5" />
+                        <HugeiconsIcon icon={InformationCircleIcon} className="h-5 w-5" />
                     </Button>
                 </div>
             </div>
@@ -254,7 +255,7 @@ export default function ChatDetailPage() {
                 ) : messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-50">
                         <div className="h-20 w-20 bg-slate-200 rounded-full flex items-center justify-center mb-4">
-                            <Send className="h-10 w-10 text-slate-400 ml-1" />
+                            <HugeiconsIcon icon={SentIcon} className="h-10 w-10 text-slate-400 ml-1" />
                         </div>
                         <p className="text-slate-500">No messages yet. Say hello!</p>
                     </div>
@@ -330,7 +331,7 @@ export default function ChatDetailPage() {
                             newMessage.trim() ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-slate-100 text-slate-400"
                         )}
                     >
-                        <Send className="h-4 w-4 ml-0.5" />
+                        <HugeiconsIcon icon={SentIcon} className="h-4 w-4 ml-0.5" />
                     </Button>
                 </form>
             </div>

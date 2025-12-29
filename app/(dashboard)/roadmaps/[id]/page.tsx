@@ -1,28 +1,29 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    ChevronRight,
-    Share2,
-    MoreHorizontal,
-    Plus,
-    MessageSquare,
-    ThumbsUp,
-    Calendar,
-    Loader2,
-    X,
-    Globe,
-    Pencil,
-    Copy,
-    Eye,
-    EyeOff,
-    Trash2,
-    Users,
-    Github,
-    ExternalLink,
-    BookOpen,
-    Link as LinkIcon
-} from "lucide-react"
+    ArrowRight01Icon,
+    Share08Icon,
+    MoreHorizontalIcon,
+    PlusSignIcon,
+    Comment01Icon,
+    ThumbsUpIcon,
+    Calendar03Icon,
+    Loading03Icon,
+    Cancel01Icon,
+    Globe02Icon,
+    PencilEdit01Icon,
+    Copy01Icon,
+    ViewIcon,
+    ViewOffIcon,
+    Delete02Icon,
+    UserGroup02Icon,
+    GithubIcon,
+    LinkSquare02Icon,
+    BookOpen01Icon,
+    Link01Icon
+} from "@hugeicons/core-free-icons"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -546,7 +547,7 @@ export default function RoadmapDetailPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -579,7 +580,7 @@ export default function RoadmapDetailPage() {
                                 size="icon"
                                 onClick={() => setShowAddFeature(false)}
                             >
-                                <X className="h-4 w-4" />
+                                <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
                             </Button>
                         </div>
                         <form onSubmit={handleCreateFeature} className="p-4 space-y-4">
@@ -638,7 +639,7 @@ export default function RoadmapDetailPage() {
                                     disabled={isCreatingFeature}
                                 >
                                     {isCreatingFeature ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
+                                        <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Creating...</>
                                     ) : (
                                         "Create Feature"
                                     )}
@@ -660,7 +661,7 @@ export default function RoadmapDetailPage() {
                                 size="icon"
                                 onClick={() => setShowEditModal(false)}
                             >
-                                <X className="h-4 w-4" />
+                                <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
                             </Button>
                         </div>
                         <form onSubmit={handleUpdateRoadmap} className="p-4 space-y-4">
@@ -709,12 +710,12 @@ export default function RoadmapDetailPage() {
                             {/* Project Links Section */}
                             <div className="space-y-3 pt-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <LinkIcon className="h-4 w-4 text-slate-400" />
+                                    <HugeiconsIcon icon={Link01Icon} className="h-4 w-4 text-slate-400" />
                                     Project Links
                                 </label>
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
-                                        <Github className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <HugeiconsIcon icon={GithubIcon} className="h-4 w-4 text-slate-500 flex-shrink-0" />
                                         <Input
                                             placeholder="https://github.com/username/repo"
                                             value={editForm.links.github}
@@ -725,7 +726,7 @@ export default function RoadmapDetailPage() {
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <ExternalLink className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <HugeiconsIcon icon={LinkSquare02Icon} className="h-4 w-4 text-slate-500 flex-shrink-0" />
                                         <Input
                                             placeholder="https://your-live-demo.com"
                                             value={editForm.links.liveDemo}
@@ -736,7 +737,7 @@ export default function RoadmapDetailPage() {
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <BookOpen className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <HugeiconsIcon icon={BookOpen01Icon} className="h-4 w-4 text-slate-500 flex-shrink-0" />
                                         <Input
                                             placeholder="https://docs.example.com"
                                             value={editForm.links.documentation}
@@ -747,7 +748,7 @@ export default function RoadmapDetailPage() {
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <Globe className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                                        <HugeiconsIcon icon={Globe02Icon} className="h-4 w-4 text-slate-500 flex-shrink-0" />
                                         <Input
                                             placeholder="https://your-website.com"
                                             value={editForm.links.website}
@@ -774,7 +775,7 @@ export default function RoadmapDetailPage() {
                                     disabled={isUpdating}
                                 >
                                     {isUpdating ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                                        <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
                                     ) : (
                                         "Save Changes"
                                     )}
@@ -791,7 +792,7 @@ export default function RoadmapDetailPage() {
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
                         <div className="p-6">
                             <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100">
-                                <Trash2 className="h-6 w-6 text-red-600" />
+                                <HugeiconsIcon icon={Delete02Icon} className="h-6 w-6 text-red-600" />
                             </div>
                             <h2 className="text-lg font-semibold text-center mb-2">Delete Roadmap</h2>
                             <p className="text-sm text-slate-500 text-center mb-6">
@@ -813,7 +814,7 @@ export default function RoadmapDetailPage() {
                                     disabled={isDeleting}
                                 >
                                     {isDeleting ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
+                                        <><HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>
                                     ) : (
                                         "Delete"
                                     )}
@@ -834,7 +835,7 @@ export default function RoadmapDetailPage() {
                             <Link href={isOwner ? "/roadmaps" : "/feed"} className="hover:text-slate-900 transition-colors">
                                 {isOwner ? "My Roadmaps" : "Discover"}
                             </Link>
-                            <ChevronRight className="h-4 w-4 mx-2 text-slate-300" />
+                            <HugeiconsIcon icon={ArrowRight01Icon} className="h-4 w-4 mx-2 text-slate-300" />
                             <span className="text-slate-900 font-medium truncate max-w-[200px]">{roadmap.title}</span>
                         </div>
 
@@ -875,7 +876,7 @@ export default function RoadmapDetailPage() {
                                     <StatusBadge status={roadmap.status} />
                                     <span className="text-slate-300">|</span>
                                     <span className="flex items-center gap-1.5">
-                                        <Calendar className="h-4 w-4" /> {dateRange}
+                                        <HugeiconsIcon icon={Calendar03Icon} className="h-4 w-4" /> {dateRange}
                                     </span>
                                     <span className="text-slate-300">|</span>
                                     <Badge variant="secondary" className="font-normal capitalize bg-slate-100 text-slate-600 hover:bg-slate-200">
@@ -899,7 +900,7 @@ export default function RoadmapDetailPage() {
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors text-sm"
                                             >
-                                                <Github className="h-4 w-4" />
+                                                <HugeiconsIcon icon={GithubIcon} className="h-4 w-4" />
                                                 GitHub
                                             </a>
                                         )}
@@ -910,7 +911,7 @@ export default function RoadmapDetailPage() {
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors text-sm"
                                             >
-                                                <ExternalLink className="h-4 w-4" />
+                                                <HugeiconsIcon icon={LinkSquare02Icon} className="h-4 w-4" />
                                                 Live Demo
                                             </a>
                                         )}
@@ -921,7 +922,7 @@ export default function RoadmapDetailPage() {
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-sm"
                                             >
-                                                <BookOpen className="h-4 w-4" />
+                                                <HugeiconsIcon icon={BookOpen01Icon} className="h-4 w-4" />
                                                 Docs
                                             </a>
                                         )}
@@ -932,7 +933,7 @@ export default function RoadmapDetailPage() {
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors text-sm"
                                             >
-                                                <Globe className="h-4 w-4" />
+                                                <HugeiconsIcon icon={Globe02Icon} className="h-4 w-4" />
                                                 Website
                                             </a>
                                         )}
@@ -947,7 +948,7 @@ export default function RoadmapDetailPage() {
                                         className="h-10 px-6 bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
                                         onClick={() => setShowAddFeature(true)}
                                     >
-                                        <Plus className="h-4 w-4 mr-2" /> Add Feature
+                                        <HugeiconsIcon icon={PlusSignIcon} className="h-4 w-4 mr-2" /> Add Feature
                                     </Button>
                                 )}
 
@@ -962,7 +963,7 @@ export default function RoadmapDetailPage() {
                                             toast.success("Link copied to clipboard")
                                         }}
                                     >
-                                        <Share2 className="h-4 w-4 mr-2" /> Share
+                                        <HugeiconsIcon icon={Share08Icon} className="h-4 w-4 mr-2" /> Share
                                     </Button>
 
                                     {isTeamMember && (
@@ -974,7 +975,7 @@ export default function RoadmapDetailPage() {
                                                 className={`h-8 text-slate-600 hover:text-slate-900 ${showTeamPanel ? "bg-slate-100 text-slate-900" : ""}`}
                                                 onClick={() => setShowTeamPanel(!showTeamPanel)}
                                             >
-                                                <Users className="h-4 w-4 mr-2" /> Team
+                                                <HugeiconsIcon icon={UserGroup02Icon} className="h-4 w-4 mr-2" /> Team
                                             </Button>
                                         </>
                                     )}
@@ -989,7 +990,7 @@ export default function RoadmapDetailPage() {
                                                     className="h-8 w-8 px-0 text-slate-600 hover:text-slate-900"
                                                     onClick={() => setShowMoreOptions(!showMoreOptions)}
                                                 >
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <HugeiconsIcon icon={MoreHorizontalIcon} className="h-4 w-4" />
                                                 </Button>
 
                                                 {/* Dropdown Menu */}
@@ -1005,7 +1006,7 @@ export default function RoadmapDetailPage() {
                                                                 disabled={isPublishing}
                                                                 className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors disabled:opacity-50"
                                                             >
-                                                                {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4 text-slate-500" />}
+                                                                {isPublishing ? <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" /> : <HugeiconsIcon icon={Globe02Icon} className="h-4 w-4 text-slate-500" />}
                                                                 Publish to Community
                                                             </button>
                                                         )}
@@ -1014,7 +1015,7 @@ export default function RoadmapDetailPage() {
                                                             onClick={handleOpenEditModal}
                                                             className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
                                                         >
-                                                            <Pencil className="h-4 w-4 text-slate-500" />
+                                                            <HugeiconsIcon icon={PencilEdit01Icon} className="h-4 w-4 text-slate-500" />
                                                             Edit Details
                                                         </button>
 
@@ -1022,7 +1023,7 @@ export default function RoadmapDetailPage() {
                                                             onClick={handleDuplicateRoadmap}
                                                             className="flex w-full items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
                                                         >
-                                                            <Copy className="h-4 w-4 text-slate-500" />
+                                                            <HugeiconsIcon icon={Copy01Icon} className="h-4 w-4 text-slate-500" />
                                                             Duplicate
                                                         </button>
 
@@ -1033,11 +1034,11 @@ export default function RoadmapDetailPage() {
                                                             >
                                                                 {roadmap.visibility === "public" ? (
                                                                     <>
-                                                                        <EyeOff className="h-4 w-4 text-slate-500" /> Make Private
+                                                                        <HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4 text-slate-500" /> Make Private
                                                                     </>
                                                                 ) : (
                                                                     <>
-                                                                        <Eye className="h-4 w-4 text-slate-500" /> Make Public
+                                                                        <HugeiconsIcon icon={ViewIcon} className="h-4 w-4 text-slate-500" /> Make Public
                                                                     </>
                                                                 )}
                                                             </button>
@@ -1054,7 +1055,7 @@ export default function RoadmapDetailPage() {
                                                                     }}
                                                                     className="flex w-full items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
                                                                 >
-                                                                    <Trash2 className="h-4 w-4" />
+                                                                    <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
                                                                     Delete Roadmap
                                                                 </button>
                                                             </>
@@ -1085,7 +1086,7 @@ export default function RoadmapDetailPage() {
                     {/* Timeline View */}
                     {features.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16">
-                            <Plus className="h-12 w-12 text-slate-300 mb-4" />
+                            <HugeiconsIcon icon={PlusSignIcon} className="h-12 w-12 text-slate-300 mb-4" />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No features yet</h3>
                             <p className="text-slate-500 mb-4">
                                 {(isOwner || userRole === "editor") ? "Add your first feature to this roadmap." : "This roadmap doesn't have any features yet."}
@@ -1095,7 +1096,7 @@ export default function RoadmapDetailPage() {
                                     className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
                                     onClick={() => setShowAddFeature(true)}
                                 >
-                                    <Plus className="mr-2 h-4 w-4" /> Add Feature
+                                    <HugeiconsIcon icon={PlusSignIcon} className="mr-2 h-4 w-4" /> Add Feature
                                 </Button>
                             )}
                         </div>
@@ -1127,7 +1128,7 @@ export default function RoadmapDetailPage() {
                                                         className={`${feature.hasUpvoted ? 'text-[#191a23] bg-slate-100' : 'text-slate-500'} hover:text-[#191a23]`}
                                                         onClick={() => handleUpvote(feature.id)}
                                                     >
-                                                        <ThumbsUp className={`h-4 w-4 mr-1 ${feature.hasUpvoted ? 'fill-current' : ''}`} /> {feature.votes}
+                                                        <HugeiconsIcon icon={ThumbsUpIcon} className={`h-4 w-4 mr-1 ${feature.hasUpvoted ? 'fill-current' : ''}`} /> {feature.votes}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -1160,7 +1161,7 @@ export default function RoadmapDetailPage() {
                                                     className="text-muted-foreground hover:text-black hover:bg-secondary -ml-2"
                                                     onClick={() => toggleComments(feature.id)}
                                                 >
-                                                    <MessageSquare className="h-4 w-4 mr-2" />
+                                                    <HugeiconsIcon icon={Comment01Icon} className="h-4 w-4 mr-2" />
                                                     {feature.comments} Comments
                                                     {expandedComments.has(feature.id) ? " ▲" : " ▼"}
                                                 </Button>
@@ -1170,7 +1171,7 @@ export default function RoadmapDetailPage() {
                                                     <div className="mt-4 bg-slate-50 rounded-lg p-4 border border-slate-100 space-y-4">
                                                         {loadingComments.has(feature.id) ? (
                                                             <div className="flex items-center justify-center py-4">
-                                                                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                                                                <HugeiconsIcon icon={Loading03Icon} className="h-5 w-5 animate-spin text-slate-400" />
                                                             </div>
                                                         ) : (
                                                             <>
@@ -1233,7 +1234,7 @@ export default function RoadmapDetailPage() {
                                                                         disabled={submittingComment.has(feature.id) || !newComment[feature.id]?.trim()}
                                                                     >
                                                                         {submittingComment.has(feature.id) ? (
-                                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                                            <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" />
                                                                         ) : (
                                                                             "Post"
                                                                         )}
@@ -1292,7 +1293,7 @@ export default function RoadmapDetailPage() {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                                         >
-                                            <Github className="h-4 w-4" />
+                                            <HugeiconsIcon icon={GithubIcon} className="h-4 w-4" />
                                             <span className="truncate">{roadmap.links.github.replace(/^https?:\/\//, '')}</span>
                                         </a>
                                     )}
@@ -1303,7 +1304,7 @@ export default function RoadmapDetailPage() {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                                         >
-                                            <ExternalLink className="h-4 w-4" />
+                                            <HugeiconsIcon icon={LinkSquare02Icon} className="h-4 w-4" />
                                             <span className="truncate">{roadmap.links.liveDemo.replace(/^https?:\/\//, '')}</span>
                                         </a>
                                     )}
@@ -1314,7 +1315,7 @@ export default function RoadmapDetailPage() {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                                         >
-                                            <BookOpen className="h-4 w-4" />
+                                            <HugeiconsIcon icon={BookOpen01Icon} className="h-4 w-4" />
                                             <span className="truncate">{roadmap.links.documentation.replace(/^https?:\/\//, '')}</span>
                                         </a>
                                     )}
@@ -1325,7 +1326,7 @@ export default function RoadmapDetailPage() {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
                                         >
-                                            <Globe className="h-4 w-4" />
+                                            <HugeiconsIcon icon={Globe02Icon} className="h-4 w-4" />
                                             <span className="truncate">{roadmap.links.website.replace(/^https?:\/\//, '')}</span>
                                         </a>
                                     )}

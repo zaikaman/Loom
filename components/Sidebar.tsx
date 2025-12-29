@@ -3,28 +3,31 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    Home,
-    List,
-    PlusCircle,
-    User,
-    Settings,
-    Compass,
-    MessageCircle,
-} from "lucide-react"
+    Home01Icon,
+    Menu01Icon,
+    PlusSignCircleIcon,
+    UserIcon,
+    Settings01Icon,
+    Compass01Icon,
+    BubbleChatIcon,
+    SparklesIcon,
+} from "@hugeicons/core-free-icons"
 import LogoIcon from "@/app/assets/icons/logo-icon.svg"
 import { cn } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
 import { LogoutButton } from "@/components/LogoutButton"
 
 const navItems = [
-    { name: "Overview", href: "/dashboard", icon: Home },
-    { name: "Discover", href: "/feed", icon: Compass },
-    { name: "My Roadmaps", href: "/roadmaps", icon: List },
-    { name: "Chat", href: "/chat", icon: MessageCircle },
-    { name: "New Roadmap", href: "/roadmaps/new", icon: PlusCircle },
-    { name: "Profile", href: "/profile", icon: User },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Overview", href: "/dashboard", icon: Home01Icon },
+    { name: "Discover", href: "/feed", icon: Compass01Icon },
+    { name: "My Roadmaps", href: "/roadmaps", icon: Menu01Icon },
+    { name: "Loom AI", href: "/ai", icon: SparklesIcon },
+    { name: "Chat", href: "/chat", icon: BubbleChatIcon },
+    { name: "New Roadmap", href: "/roadmaps/new", icon: PlusSignCircleIcon },
+    { name: "Profile", href: "/profile", icon: UserIcon },
+    { name: "Settings", href: "/settings", icon: Settings01Icon },
 ]
 
 interface UserInfo {
@@ -76,7 +79,6 @@ export function Sidebar({ className }: { className?: string }) {
                 <nav className="flex flex-col space-y-1">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href
-                        const Icon = item.icon
                         return (
                             <Link
                                 key={item.href}
@@ -88,7 +90,7 @@ export function Sidebar({ className }: { className?: string }) {
                                         : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                                 )}
                             >
-                                <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                                <HugeiconsIcon icon={item.icon} className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
                                 <span>{item.name}</span>
                             </Link>
                         )

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { LayoutGrid, TrendingUp, Users, Plus, Loader2 } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { DashboardSquare02Icon, TradeUpIcon, UserGroup02Icon, PlusSignIcon, Loading03Icon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RoadmapCard } from "@/components/RoadmapCard"
@@ -64,19 +65,19 @@ export default function DashboardPage() {
         {
             title: "Total Roadmaps",
             value: roadmaps.length.toString(),
-            icon: LayoutGrid,
+            icon: DashboardSquare02Icon,
             change: "All time"
         },
         {
             title: "Active Features",
             value: roadmaps.reduce((acc, r) => acc + (r.featureCount || 0), 0).toString(),
-            icon: TrendingUp,
+            icon: TradeUpIcon,
             change: "Across roadmaps"
         },
         {
             title: "Team Members",
             value: new Set(roadmaps.flatMap(r => r.team?.map(m => m.userId) || [])).size.toString(),
-            icon: Users,
+            icon: UserGroup02Icon,
             change: "Across roadmaps"
         },
     ]
@@ -84,7 +85,7 @@ export default function DashboardPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <HugeiconsIcon icon={Loading03Icon} className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         )
     }
@@ -112,7 +113,7 @@ export default function DashboardPage() {
                 </div>
                 <Link href="/roadmaps/new">
                     <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                        <Plus className="mr-2 h-4 w-4" /> Create New Roadmap
+                        <HugeiconsIcon icon={PlusSignIcon} className="mr-2 h-4 w-4" /> Create New Roadmap
                     </Button>
                 </Link>
             </div>
@@ -123,7 +124,7 @@ export default function DashboardPage() {
                     <Card key={i} className="hover:shadow-md transition-shadow">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
-                            <stat.icon className="h-4 w-4 text-slate-400" />
+                            <HugeiconsIcon icon={stat.icon} className="h-4 w-4 text-slate-400" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
@@ -145,12 +146,12 @@ export default function DashboardPage() {
                 {roadmaps.length === 0 ? (
                     <Card className="p-8">
                         <div className="text-center">
-                            <LayoutGrid className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+                            <HugeiconsIcon icon={DashboardSquare02Icon} className="h-12 w-12 mx-auto text-slate-300 mb-4" />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No roadmaps yet</h3>
                             <p className="text-slate-500 mb-4">Create your first roadmap to get started.</p>
                             <Link href="/roadmaps/new">
                                 <Button className="bg-[#191a23] hover:bg-[#2a2b35] text-white">
-                                    <Plus className="mr-2 h-4 w-4" /> Create Roadmap
+                                    <HugeiconsIcon icon={PlusSignIcon} className="mr-2 h-4 w-4" /> Create Roadmap
                                 </Button>
                             </Link>
                         </div>
