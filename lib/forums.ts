@@ -221,12 +221,14 @@ export async function updateUser(
         displayName: string;
         bio: string;
         extendedData: Record<string, unknown>;
-    }>
+    }>,
+    token?: string
 ) {
     return forumsRequest<ForumsUser>({
         method: "PUT",
         path: `/api/v1/user/${id}`,
         body: data,
+        token,
     });
 }
 

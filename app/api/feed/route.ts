@@ -123,6 +123,17 @@ export async function GET() {
                     const featureCount = extendedData?.features?.length || 0;
                     const totalUpvotes = extendedData?.features?.reduce((sum, f) => sum + (f.votes || 0), 0) || 0;
 
+                    let avatarUrl: string | undefined;
+                    try {
+                        const userId = (thread as unknown as { user?: { id: string } }).user?.id;
+                        if (userId) {
+                            const user = await import("@/lib/forums").then(m => m.getUser(userId));
+                            avatarUrl = (user.extendedData as { avatarUrl?: string })?.avatarUrl;
+                        }
+                    } catch (e) {
+                        console.error("Failed to fetch author avatar:", e);
+                    }
+
                     return {
                         id: thread.id,
                         title: thread.title,
@@ -134,6 +145,7 @@ export async function GET() {
                         author: {
                             id: (thread as unknown as { user?: { id: string; username: string } }).user?.id,
                             username: (thread as unknown as { user?: { id: string; username: string } }).user?.username,
+                            avatarUrl,
                         },
                         featureCount,
                         totalUpvotes,

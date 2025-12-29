@@ -12,6 +12,7 @@ interface TeamMember {
     userId: string
     username: string
     displayName?: string
+    avatarUrl?: string
     role: "owner" | "editor" | "viewer"
     invitedAt: string
     status: "pending" | "accepted"
@@ -279,9 +280,11 @@ export function TeamManager({ roadmapId, isOwner, onClose }: TeamManagerProps) {
                             className="flex items-center justify-between px-4 py-3 hover:bg-slate-50/50"
                         >
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8 bg-slate-200 text-sm font-medium flex items-center justify-center">
-                                    {member.username[0].toUpperCase()}
-                                </Avatar>
+                                <Avatar
+                                    src={member.avatarUrl}
+                                    className="h-8 w-8 bg-slate-200 text-sm font-medium flex items-center justify-center"
+                                    fallback={member.username[0].toUpperCase()}
+                                />
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-medium">{member.username}</span>

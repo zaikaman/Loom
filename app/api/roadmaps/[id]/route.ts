@@ -55,6 +55,25 @@ export async function GET(
         // Get team member count
         const teamCount = (extendedData?.team?.length || 0) + 1; // +1 for owner
 
+        // Fetch author details for avatar
+        let author = { username: "Unknown", avatarUrl: undefined as string | undefined };
+        try {
+            const threadUser = (thread as unknown as { user?: { id: string; username: string } }).user;
+            const threadUserId = threadUser?.id || (thread as unknown as { userId?: string }).userId;
+
+            if (threadUserId) {
+                const user = await import("@/lib/forums").then(m => m.getUser(threadUserId));
+                author = {
+                    username: user.username,
+                    avatarUrl: (user.extendedData as { avatarUrl?: string })?.avatarUrl
+                };
+            } else if (threadUser?.username) {
+                author.username = threadUser.username;
+            }
+        } catch (e) {
+            console.error("Failed to fetch author details:", e);
+        }
+
         return NextResponse.json({
             roadmap: {
                 id: thread.id,
@@ -66,6 +85,7 @@ export async function GET(
                 createdAt: thread.createdAt,
                 updatedAt: thread.updatedAt,
                 teamCount,
+                author,
             },
             isOwner,
             isTeamMember,

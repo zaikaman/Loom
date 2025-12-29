@@ -30,6 +30,7 @@ interface FeedRoadmap {
     author?: {
         id: string
         username: string
+        avatarUrl?: string
     }
     featureCount: number
     totalUpvotes: number
@@ -161,8 +162,20 @@ export default function FeedPage() {
                             <CardContent className="p-6">
                                 {/* Author & Time */}
                                 <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#191a23] to-slate-600 flex items-center justify-center">
-                                        <User className="h-4 w-4 text-white" />
+                                    <div className="mr-3">
+                                        <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
+                                            {roadmap.author?.avatarUrl ? (
+                                                <img
+                                                    src={roadmap.author.avatarUrl}
+                                                    alt={roadmap.author.username}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#191a23] to-slate-600">
+                                                    <User className="h-4 w-4 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <span className="text-sm font-medium text-[#191a23]">

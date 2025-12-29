@@ -62,11 +62,13 @@ export async function GET(
             if (ownerId) {
                 try {
                     const owner = await getUser(ownerId);
+                    const ownerAvatarUrl = (owner.extendedData as { avatarUrl?: string })?.avatarUrl;
                     fullTeam = [
                         {
                             userId: owner.id,
                             username: owner.username,
                             displayName: owner.displayName,
+                            avatarUrl: ownerAvatarUrl,
                             role: "owner" as const,
                             invitedAt: thread.createdAt,
                             status: "accepted" as const,
@@ -79,8 +81,25 @@ export async function GET(
             }
         }
 
+        // Fetch avatar URLs for all team members
+        const teamWithAvatars = await Promise.all(
+            fullTeam.map(async (member) => {
+                // If member already has an avatarUrl from stored data, use it
+                if (member.avatarUrl) return member;
+
+                try {
+                    const memberUser = await getUser(member.userId);
+                    const avatarUrl = (memberUser.extendedData as { avatarUrl?: string })?.avatarUrl;
+                    return { ...member, avatarUrl };
+                } catch {
+                    // User not found, continue without avatar
+                    return member;
+                }
+            })
+        );
+
         return NextResponse.json({
-            team: fullTeam,
+            team: teamWithAvatars,
             userRole,
         });
     } catch (error) {

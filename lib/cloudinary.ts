@@ -15,7 +15,7 @@ interface UserThreadsMap {
 /**
  * Parse the CLOUDINARY_URL environment variable and configure the SDK
  */
-function configureCloudinary(): void {
+export function configureCloudinary(): void {
     const cloudinaryUrl = process.env.CLOUDINARY_URL;
     if (!cloudinaryUrl) {
         throw new Error('CLOUDINARY_URL is not set in environment variables');

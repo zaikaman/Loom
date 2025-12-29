@@ -4,6 +4,7 @@ export interface TeamMember {
     userId: string;
     username: string;
     displayName?: string;
+    avatarUrl?: string;
     role: "owner" | "editor" | "viewer";
     invitedAt: string;
     status: "pending" | "accepted";

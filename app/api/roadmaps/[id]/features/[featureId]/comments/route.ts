@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { forumsRequest, ForumsThread, getMe, getThread } from "@/lib/forums";
+import { forumsRequest, ForumsThread, getMe, getThread, getUser } from "@/lib/forums";
 import { getSession } from "@/lib/session";
 
 interface StoredComment {
@@ -7,6 +7,7 @@ interface StoredComment {
     body: string;
     userId: string;
     username: string;
+    avatarUrl?: string;
     createdAt: string;
 }
 
@@ -52,7 +53,21 @@ export async function GET(
 
         console.log("[GET /comments] Found", comments.length, "comments");
 
-        return NextResponse.json({ comments });
+        // Fetch avatar URLs for comments that don't have one stored
+        const commentsWithAvatars = await Promise.all(
+            comments.map(async (comment) => {
+                if (comment.avatarUrl) return comment;
+                try {
+                    const user = await getUser(comment.userId);
+                    const avatarUrl = (user.extendedData as { avatarUrl?: string })?.avatarUrl;
+                    return { ...comment, avatarUrl };
+                } catch {
+                    return comment;
+                }
+            })
+        );
+
+        return NextResponse.json({ comments: commentsWithAvatars });
     } catch (error) {
         console.error("[GET /comments] Error:", error);
         const message = error instanceof Error ? error.message : "Failed to fetch comments";
@@ -93,12 +108,16 @@ export async function POST(
             return NextResponse.json({ error: "Feature not found" }, { status: 404 });
         }
 
+        // Get user's avatar URL
+        const userAvatarUrl = (user.extendedData as { avatarUrl?: string })?.avatarUrl;
+
         // Create the new comment
         const newComment: StoredComment = {
             id: `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             body: commentBody.trim(),
             userId: user.id,
             username: user.displayName || user.username,
+            avatarUrl: userAvatarUrl,
             createdAt: new Date().toISOString(),
         };
 

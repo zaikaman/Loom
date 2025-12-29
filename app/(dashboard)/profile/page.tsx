@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
@@ -14,12 +14,18 @@ interface UserProfile {
     email: string
     displayName?: string
     bio?: string
+    extendedData?: {
+        avatarUrl?: string
+    }
 }
 
 export default function ProfilePage() {
     const [user, setUser] = useState<UserProfile | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
     const [formData, setFormData] = useState({
         displayName: "",
         email: "",
@@ -65,10 +71,70 @@ export default function ProfilePage() {
             }
 
             toast.success("Profile updated successfully!")
+            // Refresh user data locally to reflect changes
+            setUser(prev => prev ? { ...prev, displayName: formData.displayName, bio: formData.bio } : null)
         } catch (err) {
             toast.error("Failed to save changes")
         } finally {
             setIsSaving(false)
+        }
+    }
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        // Client-side validation
+        // if (file.size > 1024 * 1024) {
+        //     toast.error("File size must be less than 1MB")
+        //     return
+        // }
+
+        const validTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg"]
+        if (!validTypes.includes(file.type)) {
+            toast.error("Invalid file type. Only JPG, PNG, and GIF are allowed.")
+            return
+        }
+
+        try {
+            setIsUploading(true)
+            const formData = new FormData()
+            formData.append("file", file)
+
+            const res = await fetch("/api/profile/avatar", {
+                method: "POST",
+                body: formData,
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to upload avatar")
+            }
+
+            toast.success("Avatar updated successfully!")
+
+            // Update local user state with new avatar URL
+            setUser(prev => prev ? {
+                ...prev,
+                extendedData: {
+                    ...prev.extendedData,
+                    avatarUrl: data.avatarUrl
+                }
+            } : null)
+        } catch (err) {
+            console.error(err)
+            toast.error(err instanceof Error ? err.message : "Failed to upload avatar")
+        } finally {
+            setIsUploading(false)
+            // Reset input so same file can be selected again if needed
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+            }
         }
     }
 
@@ -97,13 +163,23 @@ export default function ProfilePage() {
                     <CardContent className="flex items-center gap-6">
                         <Avatar
                             className="h-24 w-24 border-4 border-background shadow-sm"
+                            src={user?.extendedData?.avatarUrl}
                             fallback={user?.displayName?.[0] || user?.username?.[0] || "U"}
+                            alt={user?.displayName || user?.username}
                         />
                         <div className="flex flex-col gap-2">
-                            <Button variant="outline" className="w-fit" onClick={() => toast.info("Image upload coming soon")}>
-                                <Camera className="mr-2 h-4 w-4" /> Change Avatar
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/jpeg,image/png,image/gif"
+                                onChange={handleFileChange}
+                            />
+                            <Button variant="outline" className="w-fit" onClick={handleAvatarClick} disabled={isUploading}>
+                                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+                                {isUploading ? "Uploading..." : "Change Avatar"}
                             </Button>
-                            <p className="text-xs text-muted-foreground">JPG, GIF or PNG. 1MB max.</p>
+                            <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Images are optimized automatically.</p>
                         </div>
                     </CardContent>
                 </Card>

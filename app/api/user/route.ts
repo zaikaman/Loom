@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { forumsRequest, ForumsUser, getMe } from "@/lib/forums";
+import { forumsRequest, ForumsUser, getMe, updateUser } from "@/lib/forums";
 import { getSession } from "@/lib/session";
 
 // GET /api/user - Get current user
@@ -36,17 +36,14 @@ export async function PUT(request: NextRequest) {
         console.log("[PUT /api/user] Current extendedData:", user.extendedData);
         console.log("[PUT /api/user] New data:", body);
 
-        // Try to update extendedData
-        const updatedUser = await forumsRequest<ForumsUser>({
-            method: "PUT",
-            path: `/api/v1/user/${user.id}`,
-            body: {
-                extendedData: body.extendedData,
-            },
-            token, // Use JWT token
-        });
+        // Update user profile using the helper
+        const updatedUser = await updateUser(user.id, {
+            displayName: body.displayName,
+            bio: body.bio,
+            extendedData: body.extendedData,
+        }, token);
 
-        console.log("[PUT /api/user] Success! Updated extendedData:", updatedUser.extendedData);
+        console.log("[PUT /api/user] Success! Updated user:", user.id);
 
         return NextResponse.json({ user: updatedUser });
     } catch (error) {

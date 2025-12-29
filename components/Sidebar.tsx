@@ -30,6 +30,9 @@ interface UserInfo {
     username: string
     email: string
     displayName?: string
+    extendedData?: {
+        avatarUrl?: string
+    }
 }
 
 export function Sidebar({ className }: { className?: string }) {
@@ -95,7 +98,10 @@ export function Sidebar({ className }: { className?: string }) {
             <div className="border-t border-border p-4">
                 <div className="group flex items-center w-full justify-between hover:bg-secondary/50 p-2 rounded-md cursor-pointer transition-colors relative">
                     <div className="flex items-center space-x-3">
-                        <Avatar fallback={user?.displayName?.[0] || user?.username?.[0] || "U"} />
+                        <Avatar
+                            src={user?.extendedData?.avatarUrl}
+                            fallback={user?.displayName?.[0] || user?.username?.[0] || "U"}
+                        />
                         <div className="flex flex-col">
                             <span className="text-sm font-medium text-foreground">
                                 {user?.displayName || user?.username || "Loading..."}

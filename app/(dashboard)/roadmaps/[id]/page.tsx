@@ -49,6 +49,7 @@ interface Comment {
     body: string
     userId: string
     username?: string
+    avatarUrl?: string
     createdAt: string
 }
 
@@ -61,6 +62,10 @@ interface Roadmap {
     visibility: "public" | "private"
     createdAt: string
     updatedAt: string
+    author?: {
+        username: string
+        avatarUrl?: string
+    }
 }
 
 export default function RoadmapDetailPage() {
@@ -737,6 +742,29 @@ export default function RoadmapDetailPage() {
                                 </h1>
 
                                 <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                                    {roadmap.author && (
+                                        <>
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-5 w-5 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
+                                                    {roadmap.author.avatarUrl ? (
+                                                        <img
+                                                            src={roadmap.author.avatarUrl}
+                                                            alt={roadmap.author.username}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="h-full w-full flex items-center justify-center bg-slate-200">
+                                                            <span className="text-[10px] font-bold text-slate-500">
+                                                                {roadmap.author.username[0]?.toUpperCase()}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className="font-medium text-slate-700">{roadmap.author.username}</span>
+                                            </div>
+                                            <span className="text-slate-300">|</span>
+                                        </>
+                                    )}
                                     <StatusBadge status={roadmap.status} />
                                     <span className="text-slate-300">|</span>
                                     <span className="flex items-center gap-1.5">
@@ -990,7 +1018,11 @@ export default function RoadmapDetailPage() {
                                                                     <div className="space-y-3">
                                                                         {(featureComments[feature.id] || []).map((comment) => (
                                                                             <div key={comment.id} className="flex gap-3">
-                                                                                <Avatar className="h-8 w-8" fallback={(comment.username || "U")[0]} />
+                                                                                <Avatar
+                                                                                    src={comment.avatarUrl}
+                                                                                    className="h-8 w-8"
+                                                                                    fallback={(comment.username || "U")[0]}
+                                                                                />
                                                                                 <div className="flex-1">
                                                                                     <div className="flex items-center gap-2 mb-1">
                                                                                         <span className="text-sm font-medium text-slate-900">
