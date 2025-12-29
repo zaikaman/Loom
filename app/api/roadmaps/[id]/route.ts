@@ -9,6 +9,7 @@ interface RoadmapExtendedData {
     visibility: "public" | "private";
     description?: string;
     followers?: string[];
+    ownerId?: string;
 }
 
 // GET /api/roadmaps/[id] - Get a single roadmap
@@ -22,6 +23,20 @@ export async function GET(
 
         const extendedData = thread.extendedData as RoadmapExtendedData | undefined;
 
+        // Check if current user is the owner
+        let isOwner = false;
+        try {
+            const token = await getSession();
+            if (token) {
+                const user = await getMe(token);
+                // Check ownerId in extendedData or userId on thread
+                const threadUserId = (thread as unknown as { userId?: string }).userId;
+                isOwner = user.id === extendedData?.ownerId || user.id === threadUserId;
+            }
+        } catch {
+            // Not logged in or session error, user is not owner
+        }
+
         return NextResponse.json({
             roadmap: {
                 id: thread.id,
@@ -34,6 +49,7 @@ export async function GET(
                 createdAt: thread.createdAt,
                 updatedAt: thread.updatedAt,
             },
+            isOwner,
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : "Roadmap not found";

@@ -63,6 +63,7 @@ export default function RoadmapDetailPage() {
     const [features, setFeatures] = useState<Feature[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [isOwner, setIsOwner] = useState(false)
 
     // Feature creation dialog state
     const [showAddFeature, setShowAddFeature] = useState(false)
@@ -113,6 +114,7 @@ export default function RoadmapDetailPage() {
 
                 const roadmapData = await roadmapRes.json()
                 setRoadmap(roadmapData.roadmap)
+                setIsOwner(roadmapData.isOwner ?? false)
 
                 if (featuresRes.ok) {
                     const featuresData = await featuresRes.json()
@@ -617,7 +619,9 @@ export default function RoadmapDetailPage() {
                     {/* Breadcrumb & Header */}
                     <div className="mb-8">
                         <div className="flex items-center text-sm text-slate-500 mb-4">
-                            <Link href="/roadmaps" className="hover:text-slate-900 transition-colors">My Roadmaps</Link>
+                            <Link href={isOwner ? "/roadmaps" : "/discover"} className="hover:text-slate-900 transition-colors">
+                                {isOwner ? "My Roadmaps" : "Discover"}
+                            </Link>
                             <ChevronRight className="h-4 w-4 mx-2" />
                             <span className="text-slate-900 font-medium">{roadmap.title}</span>
                         </div>
@@ -639,81 +643,85 @@ export default function RoadmapDetailPage() {
                                 }}>
                                     <Share2 className="h-4 w-4 mr-2" /> Share
                                 </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handlePublishToFeed}
-                                    disabled={isPublishing}
-                                >
-                                    {isPublishing ? (
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    ) : (
-                                        <Globe className="h-4 w-4 mr-2" />
-                                    )}
-                                    Publish
-                                </Button>
-                                <div className="relative" ref={dropdownRef}>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setShowMoreOptions(!showMoreOptions)}
-                                    >
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
+                                {isOwner && (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handlePublishToFeed}
+                                            disabled={isPublishing}
+                                        >
+                                            {isPublishing ? (
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            ) : (
+                                                <Globe className="h-4 w-4 mr-2" />
+                                            )}
+                                            Publish
+                                        </Button>
+                                        <div className="relative" ref={dropdownRef}>
+                                            <Button
+                                                variant="outline"
+                                                size="icon"
+                                                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                                            >
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
 
-                                    {/* Dropdown Menu */}
-                                    {showMoreOptions && (
-                                        <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
-                                            <button
-                                                onClick={handleOpenEditModal}
-                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                            >
-                                                <Pencil className="h-4 w-4 text-slate-500" />
-                                                Edit Roadmap
-                                            </button>
-                                            <button
-                                                onClick={handleDuplicateRoadmap}
-                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                            >
-                                                <Copy className="h-4 w-4 text-slate-500" />
-                                                Duplicate
-                                            </button>
-                                            <button
-                                                onClick={handleToggleVisibility}
-                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                            >
-                                                {roadmap.visibility === "public" ? (
-                                                    <>
-                                                        <EyeOff className="h-4 w-4 text-slate-500" />
-                                                        Make Private
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Eye className="h-4 w-4 text-slate-500" />
-                                                        Make Public
-                                                    </>
-                                                )}
-                                            </button>
-                                            <div className="my-1 border-t border-slate-100" />
-                                            <button
-                                                onClick={() => {
-                                                    setShowMoreOptions(false)
-                                                    setShowDeleteModal(true)
-                                                }}
-                                                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                                Delete Roadmap
-                                            </button>
+                                            {/* Dropdown Menu */}
+                                            {showMoreOptions && (
+                                                <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-lg z-50 py-1 animate-in fade-in-0 zoom-in-95">
+                                                    <button
+                                                        onClick={handleOpenEditModal}
+                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                        <Pencil className="h-4 w-4 text-slate-500" />
+                                                        Edit Roadmap
+                                                    </button>
+                                                    <button
+                                                        onClick={handleDuplicateRoadmap}
+                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                        <Copy className="h-4 w-4 text-slate-500" />
+                                                        Duplicate
+                                                    </button>
+                                                    <button
+                                                        onClick={handleToggleVisibility}
+                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                        {roadmap.visibility === "public" ? (
+                                                            <>
+                                                                <EyeOff className="h-4 w-4 text-slate-500" />
+                                                                Make Private
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Eye className="h-4 w-4 text-slate-500" />
+                                                                Make Public
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                    <div className="my-1 border-t border-slate-100" />
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowMoreOptions(false)
+                                                            setShowDeleteModal(true)
+                                                        }}
+                                                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                        Delete Roadmap
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                                <Button
-                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
-                                    onClick={() => setShowAddFeature(true)}
-                                >
-                                    <Plus className="h-4 w-4 mr-2" /> Add Feature
-                                </Button>
+                                        <Button
+                                            className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                            onClick={() => setShowAddFeature(true)}
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" /> Add Feature
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -729,13 +737,17 @@ export default function RoadmapDetailPage() {
                         <div className="flex flex-col items-center justify-center py-16">
                             <Plus className="h-12 w-12 text-slate-300 mb-4" />
                             <h3 className="text-lg font-medium text-slate-900 mb-2">No features yet</h3>
-                            <p className="text-slate-500 mb-4">Add your first feature to this roadmap.</p>
-                            <Button
-                                className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
-                                onClick={() => setShowAddFeature(true)}
-                            >
-                                <Plus className="mr-2 h-4 w-4" /> Add Feature
-                            </Button>
+                            <p className="text-slate-500 mb-4">
+                                {isOwner ? "Add your first feature to this roadmap." : "This roadmap doesn't have any features yet."}
+                            </p>
+                            {isOwner && (
+                                <Button
+                                    className="bg-[#191a23] hover:bg-[#2a2b35] text-white"
+                                    onClick={() => setShowAddFeature(true)}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" /> Add Feature
+                                </Button>
+                            )}
                         </div>
                     ) : (
                         <div className="relative space-y-8 pl-4 md:pl-0">

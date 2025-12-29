@@ -233,7 +233,8 @@ export async function PUT(
         feature.upvotedBy = upvotedBy;
         features[featureIndex] = feature;
 
-        // Update the thread
+        // Update the thread - use API key (no token) for admin access
+        // This allows non-owners to upvote features on any public roadmap
         await forumsRequest<ForumsThread>({
             method: "PUT",
             path: `/api/v1/thread/${roadmapId}`,
@@ -243,7 +244,7 @@ export async function PUT(
                     features,
                 },
             },
-            token,
+            // Note: no token = uses API key auth for admin access
         });
 
         console.log("[PUT /features] Upvote updated. New vote count:", feature.votes);
